@@ -95,12 +95,12 @@
 				var volume = [];
 				for(var i = 0; i < intialData.length; i++){
 					var point = initialData[i];
-					times.push(point.time);
-					high.push(point.high);
-					open.push(point.open);
-					low.push(point.low);
-					close.push(close.low);
-					volume.push(volume.low);
+					times.push(point[0]*0.001);
+					high.push(point[2]);
+					open.push(point[1]);
+					low.push(point[3]);
+					close.push(close[4]);
+					volume.push(volume[5]);
 				}
 
                 chart.build();

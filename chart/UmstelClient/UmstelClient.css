@@ -1,3 +1,6 @@
+body{
+    margin:0 !important;
+}
 .ums-widgets-busyButton-wraper {
     position: relative;
     float: right !important;

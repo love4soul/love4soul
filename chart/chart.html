@@ -61,7 +61,7 @@
                 }
             };
 
-            function buildChart(name, description, initialData) {
+            function buildChart(name, description, initialData, period) {
                 chart.setSymbol(name);
                 chart.setDescription(description);
                 chart.setChartHistoryLoader(obj);
@@ -87,7 +87,7 @@
                 
                 chart.setRawData(false);
                 chart.setDigits(5);
-                chart.setPeriod(1);
+                chart.setPeriod(period);
 				
 				var times = [];
 				var open = [];

@@ -28,14 +28,20 @@
 <script>
             var chart = umstelAPI.createChart('demo');
 
-            if (chart.loaded) {
-                //buildChart();
-            } else {
-                chart.onload = function(crt) {
-                    chart = crt;
-                    //buildChart();
-                };
-            }
+			if (chart.loaded) {
+			    //buildChart();
+			    if (ainterface) {
+			        ainterface.onChartLoaded();
+			    }
+			} else {
+			    chart.onload = function(crt) {
+			        chart = crt;
+			        if (ainterface) {
+			            ainterface.onChartLoaded();
+			        }
+			        //buildChart();
+			    };
+			}
             var last_past_price = 1.00276; // for demo purposes only
             var last_live_price = 1; // for demo purposes only
 

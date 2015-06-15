@@ -47,23 +47,11 @@
             var last_live_price = 1; // for demo purposes only
 
             var obj = {
-                loadMore: function(time, request) {/*
-                
-                                    $.post("http://www.iresearchfx.com/wp-content/themes/umstel/demo-chart-past.php?time=" + time + '&last_price=' + last_past_price, function(data) {
-                                        var result = JSON.parse(data);
-                
-                                        last_past_price = result.close;
-                                        request.resolve({
-                                            time: result.time,
-                                            high: result.high,
-                                            low: result.low,
-                                            open: result.open,
-                                            close: result.close,
-                                            volume: result.volume
-                                        });
-                                    }).fail(function() {
-                                        request.reject();
-                                    });*/
+                loadMore: function(time, request) {
+					
+			        if (ainterface) {
+			            ainterface.onLoadMore();
+			        }
                 
                 }
             };

@@ -46,9 +46,8 @@
             var last_past_price = 1.00276; // for demo purposes only
             var last_live_price = 1; // for demo purposes only
 
-            var obj = {
+            var loadMoreObj = {
                 loadMore: function(time, request) {
-					alert("loadMore");
 			        if (ainterface) {
 			            ainterface.onLoadMore();
 			        }else{
@@ -61,7 +60,7 @@
             function buildChart(name, description, initialData, period, digit) {
                 chart.setSymbol(name);
                 chart.setDescription(description);
-                chart.setChartHistoryLoader(obj);
+                chart.setChartHistoryLoader(loadMoreObj);
                 /*
                 chart.setSettings( 
                 					{

@@ -61,7 +61,11 @@
                 }
             };
 			
-			function addMoreData(initialData){
+			function addMoreData(initialData, reject){
+				if(reject){
+					loadMoreRequest.reject();
+					return;
+				}
 				var times = [];
 				var open = [];
 				var high = [];
@@ -70,7 +74,7 @@
 				var volume = [];
 				for(var i = 0; i < initialData.length; i++){
 					var point = initialData[i];
-					times.push(parseFloat(point[0])*0.001);
+					times.push(parseFloat(point[0]));
 					high.push(parseFloat(point[2]));
 					open.push(parseFloat(point[1]));
 					low.push(parseFloat(point[3]));

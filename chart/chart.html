@@ -27,6 +27,8 @@
         </div>
 <script>
             var chart = umstelAPI.createChart('demo');
+			var loadMoreRequest;
+			var loadMoreTime;
 			var ainterface;
 			
 			if (chart.loaded) {
@@ -51,6 +53,8 @@
 			        if (ainterface) {
 			            ainterface.onLoadMore();
 			        }else{
+						loadMoreRequest = request;
+						loadMoreTime = time;
 			        	window.location.href = "ios://loadmore";
 			        }
                 

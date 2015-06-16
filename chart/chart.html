@@ -60,6 +60,32 @@
                 
                 }
             };
+			
+			function addMoreData(initialData){
+				var times = [];
+				var open = [];
+				var high = [];
+				var low = [];
+				var close = [];
+				var volume = [];
+				for(var i = 0; i < initialData.length; i++){
+					var point = initialData[i];
+					times.push(parseFloat(point[0])*0.001);
+					high.push(parseFloat(point[2]));
+					open.push(parseFloat(point[1]));
+					low.push(parseFloat(point[3]));
+					close.push(parseFloat(point[4]));
+					volume.push(parseFloat(point[5]));
+				}
+				loadMoreRequest.resolve({
+				                time: times,
+				                high: high,
+				                low: low,
+				                open: open,
+				                close: close,
+				                volume: volume
+				            });
+			}
 
             function buildChart(name, description, initialData, period, digit) {
                 chart.setSymbol(name);

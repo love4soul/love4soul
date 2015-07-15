@@ -1,25 +1,12 @@
 
 <!DOCTYPE html>
-<!--[if IE 7]>
- <html class="ie ie7" lang="en-US">
- <![endif]-->
-<!--[if IE 8]>
- <html class="ie ie8" lang="en-US">
- <![endif]-->
-<!--[if !(IE 7) | !(IE 8)  ]><!-->
 <html lang="en-US">
-    <!--<![endif]-->
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="initial-scale=1" />
         <title>Chart Library </title>
-        <!--[if lt IE 9]>
-         <script src="/wp-content/themes/umstel/js/html5.js" type="text/javascript"></script>
-         <![endif]-->
-			<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
-		
-        
-                </head>
+			<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>		      
+    </head>
     <body style="margin:0">
         
         <script type="text/javascript" src="UmstelClient.js"></script>
@@ -45,8 +32,6 @@
 			        //buildChart();
 			    };
 			}
-            var last_past_price = 1.00276; // for demo purposes only
-            var last_live_price = 1; // for demo purposes only
 
             var loadMoreObj = {
                 loadMore: function(time, request) {
@@ -95,25 +80,47 @@
                 chart.setSymbol(name);
                 chart.setDescription(description);
                 chart.setChartHistoryLoader(loadMoreObj);
-                /*
+                
                 chart.setSettings( 
                 					{
-                						b : {
-                							d : 2
-                							
-                						},
-                						g: {
-                								n: {
-                									i1: { //main line color
-                										y: "red"
-                									},
-                									ji: { //main line width
-                										y: 1 //values from 1-5
-                									}
-                								}
+                						g: {               								
+												j:{
+													z:{
+														y:"#2B2B2B"
+													},
+													a1:{
+														y:"#343434"
+													},
+													b1:{
+														y:"#404040"
+													},
+													d1:{
+														y:"#FFF"
+													},
+													h1:{
+														y:0
+													},
+													g1:{
+														y:0
+													}
+												},
+												l:{
+													l1:{
+														y:"#50B848"
+													},
+													m1:{
+														y:"#50B848"
+													},
+													n1:{
+														y:"#9D3337"
+													},
+													01:{
+														y:"#9D3337"
+													},
+												}
                 							}
                 					}
-                				);*/
+                				);
                 
                 chart.setRawData(false);
                 chart.setDigits(digit);

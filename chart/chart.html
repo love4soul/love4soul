@@ -183,26 +183,7 @@
                 var indicators = chart.getIndicators();
                 indicators[key].remove();
             }
-
-            function populateChartList() {
-                console.log(chart.getTAs());
-
-                // clear the list
-                $('#chart-item-list').html('');
-
-                // add TAs to list
-                var tas = chart.getTAs();
-                for(var i in tas) {
-                    $('#chart-item-list').append( '<li><div>' + tas[i].getName() +' <input class="btn btn-primary remove-chart-item ' + tas[i].getName() +'" type="button" onclick="removeTA(' + i + ');" value="x" /></div></li>');
-                }
-
-                // add indicators to list
-                var indicators = chart.getIndicators();
-                for(var i in indicators) {
-                    $('#chart-item-list').append( '<li><div>' + indicators[i].getName() +'<input class="btn btn-primary remove-chart-item" type="button" onclick="removeIndicator(' + i + ');" value="x" /></div></li>');
-                }
-            }
-                    </script>
+     </script>
         
             
     </body>

@@ -13,6 +13,11 @@
         <div id="demo" style="width: 568px; height: 320px;">
         </div>
 <script>
+            function isAndroid() {
+        	var ua = navigator.userAgent;
+                return ua.indexOf('Android') > -1;
+    	    }
+
             var chart = umstelAPI.createChart('demo');
 			var loadMoreRequest;
 			var loadMoreTime;
@@ -20,14 +25,14 @@
 			
 			if (chart.loaded) {
 			    //buildChart();
-			    if (ainterface) {
-			        ainterface.onChartLoaded();
+			    if (isAndroid()) {
+			        Android.onChartLoaded();
 			    }
 			} else {
 			    chart.onload = function(crt) {
 			        chart = crt;
-			        if (ainterface) {
-			            ainterface.onChartLoaded();
+			        if (isAndroid()) {
+			            Android.onChartLoaded();
 			        }
 			        //buildChart();
 			    };
@@ -35,14 +40,13 @@
 
             var loadMoreObj = {
                 loadMore: function(time, request) {
-			        if (ainterface) {
-			            ainterface.onLoadMore();
+                    loadMoreRequest = request;
+				    loadMoreTime = time;
+			        if (isAndroid()) {
+			            Android.onLoadMore();
 			        }else{
-						loadMoreRequest = request;
-						loadMoreTime = time;
 			        	window.location.href = "ios://loadmore";
 			        }
-                
                 }
             };
 			

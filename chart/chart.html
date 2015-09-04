@@ -5,10 +5,10 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="initial-scale=1" />
         <title>Chart Library </title>
-			<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>		      
+			<script type="text/javascript" src="js/jquery.min.js"></script>		      
     </head>
     <body style="margin:0;padding:0;background:#2B2B2B;">
-        
+
         <script type="text/javascript" src="UmstelClient.js"></script>
         <div id="demo" style="width: 568px; height: 320px;">
         </div>
@@ -22,7 +22,7 @@
 			var loadMoreRequest;
 			var loadMoreTime;
 			var ainterface;
-			
+
 			if (chart.loaded) {
 			    //buildChart();
 			    if (isAndroid()) {
@@ -49,7 +49,7 @@
 			        }
                 }
             };
-			
+
 			function addMoreData(initialData, reject){
 				if(reject){
 					loadMoreRequest.reject();
@@ -86,16 +86,16 @@
                 chart.setSymbol(name);
                 chart.setDescription(description);
                 chart.setChartHistoryLoader(loadMoreObj);
-                
-                chart.setSettings( 
+
+                chart.setSettings(
                 					{
                 						g: {
 											i:{
 												t:{
 													y:"#50B848"
 												}
-											},  
-																							
+											},
+
 												j:{
 													z:{
 														y:"#2B2B2B"
@@ -144,11 +144,11 @@
                 							}
                 					}
                 				);
-                
+
                 chart.setRawData(false);
                 chart.setDigits(digit);
                 chart.setPeriod(period);
-				
+
 				var times = [];
 				var open = [];
 				var high = [];
@@ -164,14 +164,14 @@
 					close.push(parseFloat(point[4]));
 					volume.push(parseFloat(point[5]));
 				}
-				
+
 				chart.setDataTime(times);
 				chart.setDataOpen(open);
 				chart.setDataHigh(high);
 				chart.setDataLow(low);
 				chart.setDataClose(close);
 				chart.setDataVolume(volume);
-				
+
                 chart.build();
 
             }
@@ -188,7 +188,7 @@
                 indicators[key].remove();
             }
      </script>
-        
-            
+
+
     </body>
 </html>

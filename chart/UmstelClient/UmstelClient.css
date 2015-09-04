@@ -1,12 +1,9 @@
-body{
-    margin:0 !important;
-}
-.ums-widgets-busyButton-wraper {
+.ums-widgets-busyButton-wrapper {
     position: relative;
     float: right !important;
 }
 
-.ums-widgets-busyButton-wraper-busy .ums-widgets-button {
+.ums-widgets-busyButton-wrapper-busy .ums-widgets-button {
     opacity: 0.7 !important;
 }
 
@@ -28,7 +25,7 @@ body{
     z-index: 1;
 }
 
-.ums-widgets-busyButton-wraper-busy .ums-widgets-busyButton-busy {
+.ums-widgets-busyButton-wrapper-busy .ums-widgets-busyButton-busy {
     display: block;
 }
 .ums-widgets-button {
@@ -79,16 +76,16 @@ body{
     z-index: 1;
 }
 
-.ums-widgets-button-wraper {
+.ums-widgets-button-wrapper {
     position: relative;
     float: right !important;
 }
 
-.ums-widgets-button-wraper-busy .ums-widgets-button {
+.ums-widgets-button-wrapper-busy .ums-widgets-button {
     opacity: 0.7 !important;
 }
 
-.ums-widgets-button-wraper-busy .ums-widgets-button-busy {
+.ums-widgets-button-wrapper-busy .ums-widgets-button-busy {
     display: block;
 }
 
@@ -1138,6 +1135,16 @@ html.ums-global-disableSelectionOverride body * {
     margin-right: -6px;
     bottom: -12px;
     border-top-color: #f05a5c;
+}
+.ums-charts-irfx {
+    position: absolute;
+    left: 5px;
+    bottom: 20px;
+    font-size: 15px;
+    color: black;
+    opacity: 0.3;
+    text-decoration: none;
+    cursor: pointer;
 }
 .gwt-PopupPanel {
     z-index: 1000;

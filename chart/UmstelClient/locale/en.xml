@@ -240,8 +240,8 @@
     <msg id="border">Border</msg>
     <msg id="ruler_fill">Ruler fill</msg>
 
-    <msg id="settings">Settings</msg>
     <msg id="settingsObject">Settings</msg>
+
     <msg id="anchors">Anchors</msg>
     <msg id="anchor">Anchor {0}:</msg>
     <msg id="anchorPrice">Price</msg>

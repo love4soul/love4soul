@@ -15,7 +15,7 @@
 <link rel="stylesheet" type="text/css" href="css/stx-phone.css?2" media="screen" />
 </head>
 
-<body onLoad="displayChart()">
+<body>
 
   <div class="stx-wrapper">
     <div class="stx-nav">
@@ -404,10 +404,10 @@ function finishedLoadingNewChart(currentSymbol, newSymbol){
 /*
  * Initial function that is called when chart loads. If you want the chart to default to a security, or if you're passing a security in with a query string then load it here
 */
-function displayChart(){
-  var newSymbol = "SPY";
-  stxx.setPeriodicityV2(1, "day");
-  stxx.newChart(newSymbol, null, null, finishedLoadingNewChart(stxx.chart.symbol, newSymbol));
+function displayChart(name, period, periodName, data){
+  var newSymbol = name;
+  stxx.setPeriodicityV2(period, periodName);
+  stxx.newChart(newSymbol, null, data, finishedLoadingNewChart(stxx.chart.symbol, newSymbol));
 }
 
 /**

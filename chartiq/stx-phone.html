@@ -421,25 +421,18 @@ function displayChart(name, period,  data){
  */
 //stxx.attachQuoteFeed(new STX.QuoteFeed.Demo(),{"refreshInterval":1});
 
-STX.QuoteFeed.MyFeed=function(){};
-STX.QuoteFeed.MyFeed.stxInheritsFrom(STX.QuoteFeed);
-STX.QuoteFeed.MyFeed.fetch=function(params, cb){
-    // This is an outline for how to implement fetch in your custom feed
-
-    if(params.startDate && params.endDate){
-       	console.log(1);
-    } else if(params.startDate){
-     	   console.log(2);
+STX.MyQuoteFeed.prototype.announceError=function(params, dataCallback){
+    if(params.startDate){
+        console.log(1);
     }else if(params.endDate){
 		console.log(3);
 		if (!isAndroid()) {				            
 			window.location.href = "ios://loadmore";
 		}
     }else{
-    	   console.log(4);
+        STX.alert("Error fetching quote:" + dataCallback.error);    // Probably a not found error?
     }
 };
-
 /*
  * Here's an example implementation of chart sharing upload.
  * (example python code available on request for you to build your own server)

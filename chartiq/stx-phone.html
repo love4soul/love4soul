@@ -407,7 +407,7 @@ function finishedLoadingNewChart(currentSymbol, newSymbol){
 function displayChart(name, period, periodName, data){
   var newSymbol = name;
   stxx.setPeriodicityV2(period, periodName);
-  stxx.newChart(newSymbol, null, data, finishedLoadingNewChart(stxx.chart.symbol, newSymbol));
+  stxx.newChart(newSymbol, data, null, finishedLoadingNewChart(stxx.chart.symbol, newSymbol));
 }
 
 /**

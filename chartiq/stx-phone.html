@@ -421,8 +421,8 @@ function displayChart(name, period,  data){
  */
 //stxx.attachQuoteFeed(new STX.QuoteFeed.Demo(),{"refreshInterval":1});
 
-STX.QuoteFeed.MyFeed = function (url) {
-    this.url = url;
+STX.QuoteFeed.MyFeed = function () {
+    
 };
 
 
@@ -436,14 +436,24 @@ STX.QuoteFeed.MyFeed.stxInheritsFrom(STX.QuoteFeed);
 
 STX.QuoteFeed.MyFeed.prototype.fetch = function (params, cb) {
     if (params.startDate) {       
-        console.log("engine called for a refresh");
+        //console.log("engine called for a refresh");
+		cb({
+		            quotes: []
+		        });
     } else {        
         if (params.endDate) {
             
-            console.log("engine called for older data");
+            //console.log("engine called for older data");
+			cb({
+			            quotes: []
+			        });
         } else {
             // open your javascript console to see when the engine calls for initial load!
-            console.log("engine called for initial load");
+            //console.log("engine called for initial load");
+			cb({
+			            quotes: [],
+						moreAvailable: true
+			        });
         }
     }
 };
@@ -453,7 +463,7 @@ var behavior = {
     refreshInterval: 5
 };
 
-stxx.attachQuoteFeed(new STX.QuoteFeed.MyFeed("url"), behavior); // Attach your QuoteFeed
+stxx.attachQuoteFeed(new STX.QuoteFeed.MyFeed(), behavior); // Attach your QuoteFeed
 
 
 /*

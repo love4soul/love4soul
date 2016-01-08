@@ -450,7 +450,7 @@ STX.QuoteFeed.MyFeed.prototype.fetch = function (params, cb) {
 
 var behavior = {
     // QuoteFeed.fetch() will be called every 5 seconds with startDate set to the last tick on the chart
-    refreshInterval: 500000
+    refreshInterval: 5
 };
 
 stxx.attachQuoteFeed(new STX.QuoteFeed.MyFeed("url"), behavior); // Attach your QuoteFeed

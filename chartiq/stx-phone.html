@@ -404,9 +404,9 @@ function finishedLoadingNewChart(currentSymbol, newSymbol){
 /*
  * Initial function that is called when chart loads. If you want the chart to default to a security, or if you're passing a security in with a query string then load it here
 */
-function displayChart(name, period, periodName, data){
+function displayChart(name, period, data){
   var newSymbol = name;
-  stxx.setPeriodicityV2(period, periodName);
+  stxx.setPeriodicity(period);
   stxx.newChart(newSymbol, data, null, finishedLoadingNewChart(stxx.chart.symbol, newSymbol));
 }
 

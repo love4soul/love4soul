@@ -336,6 +336,9 @@ window.onerror=function(msg){
 
 window.onload =function(msg){
 	chartLoaded = "true"; 
+  $$$(".stx-search").style.display="none";
+  $$$("#periodBtn").style.display="none";
+  $$$(".stx-toolbar").style.display="none";
 }
 
 var loadMoreCallback;
@@ -530,6 +533,7 @@ function runSampleUI(){
 
   }
   STX.ThemeManager.themesToMenu($$("customThemeSelector"), $$("builtInThemeSelector"), stxx, STX.StorageManager.callbacker("themes"));
+  stxx.toolbar=new STX.DrawingToolbar($$$(".stx-wrapper .stx-toolbar"), stxx);
 
 	STX.DrawingToolbar.initialize();
 	STX.DrawingToolbar.setVectorType(stxx, null);
@@ -540,21 +544,7 @@ function runSampleUI(){
 		if(clicked){
 			$$$("#symbol").value="";
 		}		// Set up lookup result widget using dummy data you will need to build your own lookup function that returns data in this format!
-		var sampleResults=[
-	 	{symbol:"S",description:"Sprint Corporation", exchange:"NYSE"},
-	 	{symbol:"SPY",description:"SPDR S&amp;P 500 ETF", exchange:"NYSE"},
-	 	{symbol:"^GSPC",description:"SPDR S&amp;P 500", exchange:""},
-	 	{symbol:"CSCO",description:"Cisco Systems, Inc.", exchange:"NASDAQ"},
-	 	{symbol:"SWKS",description:"Skyworks Solutions Inc.", exchange:"NASDAQ"},
-	 	{symbol:"GLD",description:"SPDR Gold Shares", exchange:"NYSE"},
-	 	{symbol:"WMT",description:"Wal-Mart Stores Inc.", exchange:"NYSE"},
-	 	{symbol:"SLV",description:"iShares Silver Trust", exchange:"NYSE"},
-	 	{symbol:"DDD",description:"3D Systems Corp.", exchange:"NYSE"},
-	 	{symbol:"GS",description:"The Goldman Sachs Group, Inc.", exchange:"NYSE"},
-	 	{symbol:"^USDCAD",description:"US Dollar Canadian Dollar", exchange:"FX"},
-	 	{symbol:"^EURUSD",description:"Euro US Dollar", exchange:"FX"}
-	 	];
-		that.displayResults(sampleResults); // Display the results in the drop down
+		v
 		
 		/*
 		// this is sample code for enabling suggestive search using an ajax query
@@ -734,13 +724,17 @@ function resizeContainers(){
       return;
   }
   // Hide UI chrome in Landscape mode
+  
+  /*
   if(h<w){
-    $$$(".stx-nav").style.display="none";
-    $$$(".stx-toolbar").style.display="none";
-  }else{
-    $$$(".stx-nav").style.display="";
-    $$$(".stx-toolbar").style.display="";    
-  }
+        //$$$(".stx-nav").style.display="none";
+        $$$(".stx-toolbar").style.display="none";
+      }else{
+        $$$(".stx-nav").style.display="";
+        $$$(".stx-toolbar").style.display="";    
+      }*/
+  
+  
 
   var chartContainer=$$$(".chartContainer");
   var chartWrapper=$$$(".stx-wrapper");

@@ -48,26 +48,6 @@
           </ul>
         </div>
 
-        <div class="stx-btn stx-menu-btn stxMenu" id="menuWrapperCompare"><em></em>
-            <div id="menuCompare" class="compare menuSelect menuOutline" style="display:none">
-              <ul>
-                <li class="stx-menu-content add">
-                  <input type="text" id="compareSymbol" name="compareSymbol" autocapitalize="off" autocorrect="off" spellcheck="off" placeholder="Symbol" class="stx-input-field">
-                  <div class="stx-color" style="background-color: rgb(253, 104, 100);"></div>
-                  <div class="stx-btn" stxToggle="STX.Comparison.addComparison();">Add</div>
-                </li>
-                <li class="stx-menu-divider"></li>
-                <li class="stx-heading">Current Symbols</li>
-                <li id="compareNone" class="stx-menu-content">None available</li>
-              </ul>
-              <ul id="symComparison" class="injected">
-                <li class="stx-menu-content symComparisonTemplate" style="display:none"><a class="stxItem"></a>
-                  <div class="stx-btn stx-ico"><span class="stx-ico-close"></span></div>
-                </li>
-              </ul>
-          </div>
-        </div>
-
         <div id="styleBtn" class="stx-btn stx-menu-btn stxMenu"><em></em>
           <ul id="chart-display" class="chart-display menuSelect menuOutline" style="display:none">
             <li class="stx-heading">Chart Style</li>
@@ -77,9 +57,6 @@
             <li stxToggle="stxx.setChartType('line')">Line</li>
             <li stxToggle="stxx.setChartType('hollow_candle')">Hollow Candle</li>
             <li stxToggle="stxx.setChartType('mountain')">Mountain</li>
-            <li class="stx-menu-divider"></li>
-            <li class="stx-heading">Chart Scale</li>
-            <li class="stx-option" stxToggle="toggleLog()">Log Scale<span class="stxLog stx-checkbox"></span></li>
           </ul>
         </div>
         <div id="studiesBtn" class="stx-btn stx-menu-btn stxMenu"><em></em>
@@ -112,26 +89,6 @@
               <li stxToggle="studyDialog(this, 'vchart');">Volume</li>
               <li stxToggle="studyDialog(this, 'Williams %R');">Williams %R</li>
             </ul>
-        </div>
-        <div id="cogBtn" class="stx-btn stx-menu-btn stxMenu"><em></em>
-            <ul id="cog" class="cog menuSelect menuOutline" style="display:none">
-             <li class="stx-heading">Timezone</li>
-              <li stxToggle="STX.DialogManager.displayDialog('timezoneDialog');STX.TimeZoneWidget.populateDialog('timezoneDialog', true);">Change Timezone</li>
-              <li class="stx-menu-divider">&nbsp;</li>
-              <li class="stx-heading">Default Themes</li>
-              <li class="stx-menu-content">
-                <ul class="menuSelect" id="builtInThemeSelector">
-                  <li>White</li>
-                  <li>Black</li>
-                </ul></li>
-              <li class="stx-menu-content">
-                <ul class="injected" id="customThemeSelector">
-                  <li class="themeSelectorTemplate" style="display:none"><a class="stxItem"></a>
-                    <div class="stx-btn stx-ico"><span class="stx-ico-close stxClose">x</span></div>
-                  </li>
-                </ul>
-              </li>
-           </ul>
         </div>
       </div>
     </div>

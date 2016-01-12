@@ -324,15 +324,19 @@
 <script>
 
 function isAndroid() {
-        	var ua = navigator.userAgent;
-                return ua.indexOf('Android') > -1;
-    	    }
+   var ua = navigator.userAgent;
+   return ua.indexOf('Android') > -1;
+}
 			
+var chartLoaded;
 
 window.onerror=function(msg){
   //alert(msg)
 }
 
+window.onload =function(msg){
+	chartLoaded = "true"; 
+}
 
 var loadMoreCallback;
 // Declare a STXChart object. This is the main object for drawing charts

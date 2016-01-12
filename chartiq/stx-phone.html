@@ -83,8 +83,8 @@
           </ul>
         </div>
         <div id="studiesBtn" class="stx-btn stx-menu-btn stxMenu"><em></em>
-          <div id="studies" class="studies menuSelect menuOutline" style="display:none">
-            <ul class="col">
+          <ul id="studies" class="studies menuSelect menuOutline" style="display:none">
+          
               <li stxToggle="studyDialog(this, 'ADX');">ADX/DMS</li>
 			<li stxToggle="studyDialog(this, 'Alligator');">Alligator</li>
 			<li stxToggle="studyDialog(this, 'Awesome');">Awesome Oscillator</li>
@@ -98,8 +98,6 @@
 			<li stxToggle="studyDialog(this, 'Keltner');">Keltner Channel</li>
               <li stxToggle="studyDialog(this, 'macd');">MACD</li>
               <li stxToggle="studyDialog(this, 'Momentum');">Momentum Indicator</li>
-            </ul>
-            <ul class="col">
               <li stxToggle="studyDialog(this, 'M Flow');">Money Flow Index</li>
               <li stxToggle="studyDialog(this, 'ma');">Moving Average</li>
               <li stxToggle="studyDialog(this, 'MA Env');">Moving Average Envelope</li>
@@ -114,7 +112,6 @@
               <li stxToggle="studyDialog(this, 'vchart');">Volume</li>
               <li stxToggle="studyDialog(this, 'Williams %R');">Williams %R</li>
             </ul>
-           </div>
         </div>
         <div id="cogBtn" class="stx-btn stx-menu-btn stxMenu"><em></em>
             <ul id="cog" class="cog menuSelect menuOutline" style="display:none">
@@ -193,7 +190,7 @@
       	<li><span class="huLabel">C: </span><span id="huClose" class="huField"></span></li>
       	<li><span class="huLabel">L: </span><span id="huLow" class="huField"></span></li>
       </ul>
-      <div id="shareBtn" class="stx-btn share"><span class="stx-ico"></span>Share</div>
+      <div id="shareBtn" class="stx-btn share" style="display:none"></div>
     </div>
       
     <div class="chartContainer"></div>

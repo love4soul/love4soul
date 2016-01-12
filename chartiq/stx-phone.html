@@ -333,8 +333,13 @@ window.onerror=function(msg){
   //alert(msg)
 }
 
+window.onload = function(msg){
+	chartLoaded = true;
+}
+
 
 var loadMoreCallback;
+var chartLoaded;
 // Declare a STXChart object. This is the main object for drawing charts
 var stxx=new STXChart({container:$$$(".chartContainer"), axisBorders:false});
 stxx.preferences.whitespace=10;	// less default whitespace on right margin for phones

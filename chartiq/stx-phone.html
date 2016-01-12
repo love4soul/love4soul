@@ -334,7 +334,7 @@ window.onerror=function(msg){
 }
 
 
-
+var loadMoreCallback;
 // Declare a STXChart object. This is the main object for drawing charts
 var stxx=new STXChart({container:$$$(".chartContainer"), axisBorders:false});
 stxx.preferences.whitespace=10;	// less default whitespace on right margin for phones
@@ -444,10 +444,13 @@ STX.QuoteFeed.MyFeed.prototype.fetch = function (params, cb) {
         if (params.endDate) {
             
             console.log("engine called for older data");
-			window.location.href = "ios://loadmore";
+			//window.location.href = "ios://loadmore";
+			loadMoreCallback = cb;
+			/*
 			cb({
-			            quotes: []
-			        });
+						            quotes: []
+						        });*/
+			
         } else {
             // open your javascript console to see when the engine calls for initial load!
             console.log("engine called for initial load");

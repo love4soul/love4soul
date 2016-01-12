@@ -335,7 +335,6 @@ window.onerror=function(msg){
 
 
 var loadMoreCallback;
-var chartLoaded = "true";
 // Declare a STXChart object. This is the main object for drawing charts
 var stxx=new STXChart({container:$$$(".chartContainer"), axisBorders:false});
 stxx.preferences.whitespace=10;	// less default whitespace on right margin for phones
@@ -413,7 +412,7 @@ function finishedLoadingNewChart(currentSymbol, newSymbol){
 */
 function displayChart(name, period,  data){
   var newSymbol = name;
-  stxx.setPeriodicityV2(1, "minute");
+  stxx.setPeriodicityV2(period, 1);
   stxx.newChart(newSymbol, data, null, finishedLoadingNewChart(stxx.chart.symbol, newSymbol));
 }
 

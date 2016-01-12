@@ -436,15 +436,15 @@ STX.QuoteFeed.MyFeed.stxInheritsFrom(STX.QuoteFeed);
 
 STX.QuoteFeed.MyFeed.prototype.fetch = function (params, cb) {
     if (params.startDate) {       
-        console.log("engine called for a refresh");
+        //console.log("engine called for a refresh");
 		cb({
 		            quotes: []
 		        });
     } else {        
         if (params.endDate) {
             
-            console.log("engine called for older data");
-			//window.location.href = "ios://loadmore";
+            //console.log("engine called for older data");
+			window.location.href = "ios://loadmore";
 			loadMoreCallback = cb;
 			/*
 			cb({
@@ -453,7 +453,7 @@ STX.QuoteFeed.MyFeed.prototype.fetch = function (params, cb) {
 			
         } else {
             // open your javascript console to see when the engine calls for initial load!
-            console.log("engine called for initial load");
+            //console.log("engine called for initial load");
 			cb({
 			            quotes: [],
 						moreAvailable: true
@@ -464,7 +464,7 @@ STX.QuoteFeed.MyFeed.prototype.fetch = function (params, cb) {
 
 var behavior = {
     // QuoteFeed.fetch() will be called every 5 seconds with startDate set to the last tick on the chart
-    refreshInterval: 5
+    refreshInterval: 60
 };
 
 stxx.attachQuoteFeed(new STX.QuoteFeed.MyFeed(), behavior); // Attach your QuoteFeed

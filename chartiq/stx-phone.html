@@ -412,7 +412,7 @@ function finishedLoadingNewChart(currentSymbol, newSymbol){
 */
 function displayChart(name, period,  data){
   var newSymbol = name;
-  stxx.setPeriodicityV2(period, 1);
+  stxx.setPeriodicityV2(1, "minute");
   stxx.newChart(newSymbol, data, null, finishedLoadingNewChart(stxx.chart.symbol, newSymbol));
 }
 

@@ -634,9 +634,27 @@ function enableDrawing(drawingType){
 }
 
 stxx.changeCallback=function(stxx, change){
+	
   if(change=="vector"){
     stxx.changeVectorType(null); // automatically turn drawing mode off after finishing a drawing
+  }else if(change=="layout"){
+	  saveLayout();
   }
+}
+
+function saveLayout(){
+    var s=stxx.exportLayout();
+    s=JSON.stringify(s);
+	if(isAndroid() == false){
+		window.location.href = "ios://savelayout/?l="+s;
+	}
+}
+
+function restoreLayout(json){
+    if(json==null){
+        return;
+    }
+    stxx.importLayout(JSON.parse(json));        
 }
 
 function resizeLookupResultsContainer(){

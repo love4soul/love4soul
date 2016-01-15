@@ -1,0 +1,31 @@
+.centeredContentWrapperFor(...) {
+	display: table;
+
+	.addChildSelector(@selectors, @index) when (@index > 0) {
+		.addChildSelector(@selectors, (@index - 1));
+		@selector: extract(@selectors, @index);
+
+		& > @{selector} {
+			display: table-cell;
+			vertical-align: middle;
+			text-align: center;
+		}
+	}
+
+	.addChildSelector(@arguments, length(@arguments,));
+}
+
+.square(@length) {
+	height: @length;
+	width: @length;
+}
+
+.hidden() {
+	display: none!important;
+}
+
+.resetListStyle() {
+	list-style: none;
+	padding: 0!important;
+	margin: 0!important;
+}

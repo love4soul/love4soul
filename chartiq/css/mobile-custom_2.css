@@ -1,0 +1,209 @@
+.clearfix {
+  clear: both;
+}
+.stxBodyOverlay {
+  width: 100%!important;
+  background: rgba(155, 155, 155, 0.75) !important;
+  z-index: 203;
+}
+body.fx-crosshair-visible .stxBodyOverlay {
+  display: none!important;
+}
+.stx-panel-control {
+  top: 20px!important;
+}
+.stx-toolbar {
+  height: 25px!important;
+  width: 100%;
+  position: absolute;
+  z-index: 200;
+  border: none!important;
+  background: rgba(255, 255, 255, 0.15) !important;
+}
+.stx-toolbar ul.hu {
+  width: 100%!important;
+  margin-left: 10px!important;
+}
+.fx-hide-crosshair-btn {
+  position: absolute;
+  z-index: 205;
+  top: 5px;
+  right: 5px;
+  height: 30px;
+  width: 30px;
+  box-sizing: border-box;
+  background-color: rgba(66, 75, 80, 0.6);
+  color: #efefef;
+  display: table;
+}
+.fx-hide-crosshair-btn > i {
+  display: table-cell;
+  vertical-align: middle;
+  text-align: center;
+}
+body:not(.fx-crosshair-visible) .fx-hide-crosshair-btn {
+  display: none!important;
+}
+.fx-toolbar-open-btn {
+  position: absolute;
+  z-index: 205;
+  top: 5px;
+  right: 54px;
+  height: 30px;
+  width: 30px;
+  box-sizing: border-box;
+  background-color: rgba(66, 75, 80, 0.75);
+  color: #efefef;
+  display: table;
+}
+.fx-toolbar-open-btn > i {
+  display: table-cell;
+  vertical-align: middle;
+  text-align: center;
+}
+body.fx-crosshair-visible .fx-toolbar-open-btn {
+  display: none!important;
+}
+.fx-toolbar-open-btn i:before {
+  content: "\f0c9";
+}
+body.fx-toolbars-open .fx-toolbar-open-btn i:before {
+  content: "\f00d";
+}
+body.fx-toolbars-open .fx-toolbar-open-btn {
+  right: 50px;
+}
+body.fx-toolbars-open .fx-toolbar-open-btn,
+body.fx-toolbars-open .fx-toolbar-open-btn:hover {
+  background-color: #424b50;
+}
+.fx-toolbar {
+  position: absolute;
+  width: 50px;
+  height: 100%;
+  background-color: #424b50 !important;
+  z-index: 204;
+}
+body.fx-crosshair-visible .fx-toolbar {
+  display: none!important;
+}
+.fx-toolbar.fx-toolbar-right {
+  right: -50px;
+  left: auto;
+}
+body.fx-toolbars-open .fx-toolbar.fx-toolbar-right {
+  right: 0;
+}
+.fx-toolbar.fx-toolbar-left {
+  left: -50px;
+  right: auto;
+}
+body.fx-toolbars-open .fx-toolbar.fx-toolbar-left {
+  left: 0;
+}
+.fx-toolbar.fx-stx-period-selector {
+  z-index: 202;
+}
+.fx-toolbar.fx-stx-period-selector ul {
+  float: right;
+  list-style: none;
+  padding: 0!important;
+  margin: 0!important;
+}
+.fx-toolbar.fx-stx-period-selector ul li {
+  float: left;
+}
+.fx-toolbar.fx-stx-period-selector ul li.stx-menu-divider {
+  width: 50px;
+}
+.fx-toolbar-btn {
+  box-sizing: border-box;
+  height: 50px;
+  width: 50px !important;
+  color: #efefef;
+  border: none!important;
+  display: table;
+}
+.fx-toolbar-btn.compact {
+  height: 40px;
+}
+.fx-toolbar-btn.fx-active,
+.fx-toolbar-btn:hover {
+  color: #fff;
+  background: #565f64 !important;
+}
+.fx-toolbar-btn > span {
+  display: table-cell;
+  vertical-align: middle;
+  text-align: center;
+}
+.fx-toolbar-btn > i {
+  display: table-cell;
+  vertical-align: middle;
+  text-align: center;
+}
+.fx-toolbar-btn.stx-menu-btn i {
+  font-size: 1.25em;
+}
+.right-menu-holder {
+  position: absolute;
+  top: 0;
+  right: 50px;
+  left: auto;
+  width: 175px;
+  height: 100%;
+  z-index: 205;
+  background: #565f64;
+}
+body.fx-crosshair-visible .right-menu-holder {
+  display: none!important;
+}
+.right-menu-holder ul {
+  list-style: none;
+  padding: 0!important;
+  margin: 0!important;
+}
+.right-menu-holder ul li {
+  padding: 7px 10px 7px 16px;
+  color: #dddddd;
+}
+.right-menu-holder ul li.stx-heading:first-child {
+  font-size: 12px;
+  text-transform: uppercase;
+  line-height: normal;
+  color: #ccc;
+  font-weight: bold;
+  position: relative;
+  padding: 10px 16px 5px 16px;
+}
+body.fx-dialog-open .stx-dialog-container {
+  height: 100%!important;
+  right: 0;
+  bottom: 0;
+  z-index: 206;
+  overflow-y: scroll;
+}
+body.fx-dialog-open .stx-dialog-container .stx-dialog {
+  min-height: 100%!important;
+  margin: 0!important;
+  box-sizing: border-box;
+  border: none!important;
+  padding-top: 35px!important;
+}
+body.fx-dialog-open .stx-dialog-container .stx-dialog .fx-dialog-close-btn {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  height: 30px;
+  width: 30px;
+  display: table;
+}
+body.fx-dialog-open .stx-dialog-container .stx-dialog .fx-dialog-close-btn > i {
+  display: table-cell;
+  vertical-align: middle;
+  text-align: center;
+}
+body.fx-dialog-open .stx-dialog-container .stx-dialog .fx-dialog-close-btn i {
+  font-size: 24px;
+  color: #666;
+}

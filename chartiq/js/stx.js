@@ -8305,6 +8305,7 @@ STX.Market.Iterator._Clock.prototype.find_prev=null;
 					function turnMeOff(div){
 						return function(){
 							div.style.display="none";
+                            menu.classList.remove('fx-active');
 							if(div.colorPickerDiv) div.colorPickerDiv.style.display="none";
 						};
 					}
@@ -8316,6 +8317,7 @@ STX.Market.Iterator._Clock.prototype.find_prev=null;
 					}while(dom);
 					if(div.style.display=="none"){
 						var menuName=STX.uniqueID();
+                        menu.classList.add('fx-active');
 						if((STX.MenuManager.menusDisabled && !menu.alwaysOn) || STX.MenuManager.menusDisabledDialog) return;
 						STX.MenuManager.menuOn(menuName, turnMeOff(div));
 						div.style.display="block";
@@ -8328,6 +8330,7 @@ STX.Market.Iterator._Clock.prototype.find_prev=null;
 						}
 					}else{
 						STX.MenuManager.menuOff();
+                        menu.classList.remove('fx-active');
 						div.style.display="none";
 					}
 				};
@@ -8354,7 +8357,13 @@ STX.Market.Iterator._Clock.prototype.find_prev=null;
 			}
 			for(var i=0;i<STX.MenuManager.menus.length;i++){
 				var menu=STX.MenuManager.menus[i];
-				var menuOutline=menu.querySelectorAll(".menuOutline")[0];
+                var menuOutline;
+				if (menu.hasAttribute('strToggleMenu')) {
+                    menuOutline=document.getElementById(menu.getAttribute('strToggleMenu'));
+                } else {
+                    menuOutline=menu.querySelectorAll(".menuOutline")[0];
+                }
+
 				menu.alwaysOn=(menu.className.indexOf("stxAlwaysOn")!=-1);
 				menu[STXTouchAction]=toggle(menuOutline, menu);
 		
@@ -8515,6 +8524,9 @@ STX.Market.Iterator._Clock.prototype.find_prev=null;
 			var node=id;
 			if(typeof id=="string") node=$$(id);
 			node.style.display="block";
+
+            document.body.classList.add('fx-dialog-open');
+
 			STX.DialogManager.stack.push(node);
 		};
 		
@@ -8534,6 +8546,7 @@ STX.Market.Iterator._Clock.prototype.find_prev=null;
 					STX.DialogManager.bodyOverlay.style.display="none";
 				}
 				STX.DialogManager.modalEnd();
+                document.body.classList.remove('fx-dialog-open');
 			}
 			STX.fixScreen();
 		};

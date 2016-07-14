@@ -339,7 +339,7 @@
 					<template cq-comparison-item>
 						<cq-comparison-item>
 							<cq-comparison-swatch></cq-comparison-swatch>
-							<cq-comparison-label>AAPL</cq-comparison-label>
+							<cq-comparison-label></cq-comparison-label>
 							<cq-comparison-loader></cq-comparison-loader>
 							<div class="stx-btn-ico ciq-close"></div>
 						</cq-comparison-item>
@@ -975,9 +975,9 @@ function saveDrawings(obj){
 	}
 }
 
-stxx.callbacks.layout=saveLayout;
-stxx.callbacks.symbolChange=saveLayout;
-stxx.callbacks.drawing=saveDrawings;
+//stxx.callbacks.layout=saveLayout;
+//stxx.callbacks.symbolChange=saveLayout;
+//stxx.callbacks.drawing=saveDrawings;
 
 
 function startUI(){
@@ -1119,10 +1119,6 @@ function startUI(){
 	restoreLayout(stxx, function(){
 		if(UIContext.loader) UIContext.loader.hide();
 	});
-	
-	if(!stxx.chart.symbol){
-		UIContext.UISymbolLookup.selectItem({symbol:"AAPL"}); // load an initial symbol
-	}
 }
 
 function hideMarkers(){

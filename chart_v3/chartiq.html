@@ -947,7 +947,7 @@ function restoreLayout(stx, cb){
 	stxx.importLayout(JSON.parse(datum), {managePeriodicity:true, cb: cb});
 }
 
-function saveLayout(){
+function saveLayout(obj){
     var s=JSON.stringify(obj.stx.exportLayout(true));
 	//STX.localStorageSetItem("myChartLayout", s);
 	if(isAndroid() == false){

@@ -944,7 +944,7 @@ new STX.ExtendedHours(stxx,["post","pre"]);
 function restoreLayout(stx, cb){
 	var datum=STX.localStorage.getItem("myChartLayout");
 	if(datum===null) return;
-	stx.importLayout(JSON.parse(datum), {managePeriodicity:true, cb: cb});
+	stxx.importLayout(JSON.parse(datum), {managePeriodicity:true, cb: cb});
 }
 
 function saveLayout(){

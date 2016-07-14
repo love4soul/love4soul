@@ -879,7 +879,7 @@ function displayChart(name, data){
 
 function changePeriod(min){
 	if(isAndroid() == false){
-		window.location.href = "ios://period?="+min;
+		window.location.href = "ios://period?p="+min;
 	}
 }
 
@@ -947,9 +947,12 @@ function restoreLayout(stx, cb){
 	stx.importLayout(JSON.parse(datum), {managePeriodicity:true, cb: cb});
 }
 
-function saveLayout(obj){
-	var s=JSON.stringify(obj.stx.exportLayout(true));
-	STX.localStorageSetItem("myChartLayout", s);
+function saveLayout(){
+    var s=stxx.exportLayout();
+    s=JSON.stringify(s);
+	if(isAndroid() == false){
+		window.location.href = "ios://savelayout/?l="+s;
+	}
 }
 
 function restoreDrawings(stx, symbol){

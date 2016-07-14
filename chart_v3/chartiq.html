@@ -948,8 +948,8 @@ function restoreLayout(stx, cb){
 }
 
 function saveLayout(){
-    var s=stxx.exportLayout();
-    s=JSON.stringify(s);
+    var s=JSON.stringify(obj.stx.exportLayout(true));
+	STX.localStorageSetItem("myChartLayout", s);
 	if(isAndroid() == false){
 		window.location.href = "ios://savelayout/?l="+s;
 	}
@@ -975,9 +975,9 @@ function saveDrawings(obj){
 	}
 }
 
-//stxx.callbacks.layout=saveLayout;
-//stxx.callbacks.symbolChange=saveLayout;
-//stxx.callbacks.drawing=saveDrawings;
+stxx.callbacks.layout=saveLayout;
+stxx.callbacks.symbolChange=saveLayout;
+stxx.callbacks.drawing=saveDrawings;
 
 
 function startUI(){

@@ -947,12 +947,9 @@ function restoreLayout(stx, cb){
 	stx.importLayout(JSON.parse(datum), {managePeriodicity:true, cb: cb});
 }
 
-function saveLayout(){
-    var s=stxx.exportLayout();
-    s=JSON.stringify(s);
-	if(isAndroid() == false){
-		window.location.href = "ios://savelayout/?l="+s;
-	}
+function saveLayout(obj){
+	var s=JSON.stringify(obj.stx.exportLayout(true));
+	STX.localStorageSetItem("myChartLayout", s);
 }
 
 function restoreDrawings(stx, symbol){

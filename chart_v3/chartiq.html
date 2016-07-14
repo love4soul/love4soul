@@ -941,15 +941,16 @@ stxx.attachQuoteFeed(new STX.QuoteFeed.MyFeed(), behavior); // Attach your Quote
 new STX.ExtendedHours(stxx,["post","pre"]);
 
 //TODO, encapsulate these in a helper object
-function restoreLayout(stx, cb){
-	var datum=STX.localStorage.getItem("myChartLayout");
-	if(datum===null) return;
-	stxx.importLayout(JSON.parse(datum), {managePeriodicity:true, cb: cb});
+function restoreLayout(json){
+    if(json==null){
+        return;
+    }
+    stxx.importLayout(JSON.parse(json));        
 }
 
 function saveLayout(obj){
     var s=JSON.stringify(obj.stx.exportLayout(true));
-	//STX.localStorageSetItem("myChartLayout", s);
+	STX.localStorageSetItem("myChartLayout", s);
 	if(isAndroid() == false){
 		window.location.href = "ios://savelayout/?l="+s;
 	}

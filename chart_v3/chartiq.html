@@ -949,7 +949,7 @@ function restoreLayout(stx, cb){
 
 function saveLayout(){
     var s=JSON.stringify(obj.stx.exportLayout(true));
-	STX.localStorageSetItem("myChartLayout", s);
+	//STX.localStorageSetItem("myChartLayout", s);
 	if(isAndroid() == false){
 		window.location.href = "ios://savelayout/?l="+s;
 	}
@@ -1115,10 +1115,12 @@ function startUI(){
 
 	UIContext.buildReverseBindings();
 
+	/*
 	if(UIContext.loader) UIContext.loader.show();
 	restoreLayout(stxx, function(){
 		if(UIContext.loader) UIContext.loader.hide();
 	});
+	*/
 }
 
 function hideMarkers(){

@@ -1,0 +1,459 @@
+/*$apple-green: #78bc1e;*/
+/*$lipstick: #c7245a;*/
+
+/* disable on elements in portrait display position */
+body.portrait .ciq-nav {
+	display: none !important;
+}
+
+body.portrait .ciq-chart-area {
+	top: 0 !important;
+	bottom: 0 !important;
+}
+
+body.portrait .ciq-chart-area .chartContainer {
+	height: 100% !important;
+}
+
+.ciq-menu-section {
+	display: block !important;
+}
+
+/* Turn off general elements in any version */
+#chartControls {
+	display: none !important;
+}
+
+.stx-markers {
+	display: none !important;
+}
+
+.ciq-footer {
+	display: none !important;
+}
+
+.ciq-search {
+	display: none !important;
+}
+
+cq-comparison {
+	display: none !important;
+}
+
+.tfc-market-section.complex {
+	display: none !important;
+}
+
+/* Custom style for landscape version */
+body.landscape >.ciq-chart-area {
+	padding: 0px !important;
+	bottom: 0px !important;
+	left: 56px !important;
+	top: 0px !important;
+	right: 0px !important;
+}
+
+body.landscape > .ciq-nav {
+	position: absolute;
+	width: 56px;
+	height: 100%;
+	top: 0;
+	left: 0;
+	background-color: #73737e;
+	padding: 0px;
+	margin: 0px;
+	overflow: scroll;
+}
+
+
+
+body.landscape .ciq-menu {
+	padding: 0px;
+	margin: 0px;
+	width: 100%;
+	text-align: center;
+}
+body.landscape .ciq-menu span{
+	padding: 0px;
+	margin: 0px;
+	color: #c2c2c6;
+}
+
+body.landscape .ciq-menu span i {
+	margin-top: 10px;
+}
+
+body.landscape .ciq-menu cq-menu {
+	padding: 0px;
+	margin: 0px;
+	position: fixed;
+	left: 56px;
+	top: 0;
+	bottom: 0;
+	max-height: 100% !important;
+	width: 235px !important;
+}
+
+body.landscape .ciq-menu.ciq-period {
+	height: 56px;
+	padding-top: 8px;
+}
+
+body.landscape .ciq-menu.ciq-period cq-menu {
+	width: 70px !important;
+}
+
+body.landscape .ciq-menu cq-menu cq-scroll {
+
+	/*height: auto !important;*/
+	/*max-height: initial !important;*/
+}
+
+body.landscape .ciq-menu cq-menu cq-study-legend {
+	width: 100%;
+	position: absolute;
+	bottom: 0;
+}
+
+body.landscape .ciq-menu cq-menu cq-study-legend cq-study-legend-content cq-label {
+	width: 140px !important;
+}
+
+body.landscape .ciq-dropdowns {
+	padding: 0px;
+	margin: 0px;
+	/*position: absolute;*/
+	/*left: 0;*/
+	float: left;
+	/*top: 0;*/
+	width: 56px; /* menu width size */
+}
+
+body.landscape .ciq-toggles {
+	padding: 0px;
+	margin: 0px;
+	float: left;
+	/*position: absolute;*/
+	/*left: 0;*/
+	/*top: 110px;*/
+	width: 56px; /* menu width size */
+}
+
+body.landscape .ciq-toggles cq-toggle {
+	width: 100% !important;
+	margin: 0px !important;
+	padding: 0px !important;
+	height: 56px !important;
+}
+
+body.landscape .ciq-toggles:after {
+	content: none;
+}
+
+body.landscape .ciq-toggles span {
+	background-image: none;
+	text-align: center;
+	color: #c2c2c6;
+	width: 100%;
+	margin: 9px 0px 0px 0px;
+	padding: 0px;
+
+}
+
+body.landscape cq-toggle.active {
+	background-color: #ffffff;
+	border: none;
+}
+
+body.landscape cq-toggle.active span {
+	color: #78bc1e !important;
+	border: none;
+}
+
+body.landscape cq-toggle,
+body.landscape cq-toggle span:hover,
+body.landscape cq-toggle span:focus,
+body.landscape cq-toggle.active span:hover,
+body.landscape cq-toggle.active span:focus {
+	border: none !important;
+}
+
+body.landscape cq-toggle.active.active2 {
+	border-bottom: 3px solid #78bc1e !important;
+	height: 53px !important;
+}
+
+body.landscape .ciq-period .cq-iscroller {
+	padding: 0px;
+	margin: 0px;
+}
+
+body.landscape cq-hu-static {
+	top: 45px !important;
+	left: 20px !important;
+	padding: 0px !important;
+
+}
+
+body.landscape .ciq-period span {
+	font-size: 18px;
+}
+
+body.landscape .ciq-period cq-item {
+	text-align: center !important;
+}
+
+body.landscape .ciq-menu:after {
+	content: none;
+}
+
+body.landscape .ciq-menu.stxMenuActive {
+	background-color: #fff !important;
+}
+
+body.landscape .ciq-menu.stxMenuActive span {
+	color: #78bc1e !important;
+}
+
+
+
+body.landscape cq-dialog {
+	width: 100%;
+	height: 100%;
+	top: 0px !important;
+	left: 0px !important;
+}
+
+body.landscape cq-toolbar {
+	display: block !important;
+	background-color: #94939d;
+}
+
+body.landscape cq-toolbar .ciq-select {
+	color: #c2c2c6;
+
+}
+
+body.landscape cq-toolbar .ciq-select span {
+	font-size: 18px;
+}
+
+body.landscape cq-toolbar .ciq-select:hover,
+body.landscape cq-toolbar .ciq-select.stxMenuActive {
+	color: #78bc1e !important;
+}
+
+body.landscape .ciq-select cq-menu {
+}
+
+body.landscape .ciq-select.stxMenuActive cq-menu {
+	position: fixed !important;
+	left: 56px !important; /* menu width */
+	top: 34px;
+	bottom: 0;
+}
+
+body.landscape .ciq-select cq-item {
+	padding: 2px 20px !important;
+}
+
+body.landscape cq-item,
+body.landscape cq-heading,
+body.landscape cq-placeholder {
+	text-align: left !important;
+	line-height: 30px;
+}
+
+body.landscape cq-section-dynamic cq-heading {
+	padding: 10px 20px !important;
+}
+
+body.landscape cq-section-dynamic cq-placeholder {
+	padding: 5px 20px !important;
+}
+
+body.landscape cq-item {
+	padding: 8px 20px !important;
+	font-size: 15px !important;
+
+}
+
+body.landscape cq-toolbar-settings .ciq-heading {
+	color: #fff !important;
+}
+
+
+
+body.landscape cq-heading {
+	font-size: 17px;
+	color: #7ab162;
+}
+
+body.landscape cq-dialog {
+	font-size: 14px !important;
+}
+
+body.landscape cq-dialog h4 {
+	font-size: 16px !important;
+}
+
+body.landscape cq-dialog .ciq-btn {
+	font-size: 16px;
+	height: 56px;
+	padding: 11px 20px;
+	margin: 0px 5px;
+}
+
+body.landscape #heads-up-hr-container {
+	display: none;
+}
+
+
+
+/* sidepanel buy,sell,short */
+body.landscape .stx-trade-nav .stx-account,
+body.landscape .stx-trade-nav .stx-trade-ticket-toggle {
+	display: none !important;
+}
+
+body.landscape .stx-trade{
+	display: block !important;
+}
+
+body.landscape cq-side-panel {
+	background-color: #fff !important;
+	top: 0;
+	left: 56px;
+	right: 0px;
+	bottom: 0px;
+}
+
+body.landscape cq-side-panel .stx-trade-panel.active {
+	height: 100%;
+}
+body.landscape cq-side-panel .stx-trade-nav.active {
+	background-color: #fff !important;
+	height: 100%;
+	border-right: 1px solid #dddddd !important ;
+	padding: 0px !important;
+}
+
+body.landscape cq-chart-title {
+	background: transparent !important;
+}
+
+#tfcConfirmOrder {
+	display: block;
+	width: 100% !important;
+	height: 100% !important;
+	left: 0;
+	top: 0;
+	margin: 0 !important;
+	position: fixed;
+}
+
+.tfc-buy.click {
+	border: 1px #78bc1e solid !important;
+	background-color: #78bc1e !important;
+}
+
+.tfc-sell.click {
+	border: 1px #c7245a solid !important;
+	background-color: #c7245a !important;
+}
+
+.red .drag-line {
+	border-top: 2px #c7245a dotted !important;
+}
+
+.green .drag-line {
+	border-top: 2px #78bc1e dotted !important;
+}
+
+.red .open-order-line {
+	border-top: 1px #c7245a solid !important;
+}
+
+.green .open-order-line {
+	border-top: 1px #78bc1e solid !important;
+}
+
+.red.pending .open-order-line {
+	border-top: 1px #c7245a dashed !important;
+}
+
+.green.pending .open-order-line {
+	border-top: 1px #78bc1e dashed !important;
+}
+
+.tfc-replace.click {
+	border: 1px #c7245a solid !important;
+	background-color: #c7245a !important;
+}
+
+/*hover*/
+.no-touch .tfc-replace.click:hover,
+.tfc-replace.click:active {
+	border: 1px #c7245a solid !important;
+	background-color: #c7245a !important;
+}
+
+.tfc-replace.green.click {
+	border: 1px #7ab162 solid !important;
+	background-color: #78bc1e !important;
+}
+
+/*hover*/
+.no-touch .tfc-replace.green.click:hover,
+.tfc-replace.green.click:active {
+	border: 1px #6ea356 solid !important;
+	background-color: #78bc1e !important;
+}
+
+.tfc-sell.click {
+	border: 1px #c7245a solid !important;
+	background-color: #c7245a !important;
+}
+
+/*hover*/
+.no-touch .tfc-sell.click:hover,
+.tfc-sell.click:active {
+	border: 1px #c7245a solid !important;
+	background-color: #c7245a !important;
+}
+
+.tfc-buy.click {
+	border: 1px #7ab162 solid !important;
+	background-color: #78bc1e !important;
+}
+
+/*hover*/
+.no-touch .tfc-buy.click:hover,
+.tfc-buy.click:active {
+	border: 1px #6ea356 solid !important;
+	background-color: #78bc1e !important;
+}
+
+.tfc-short.click {
+	border: 1px #c7245a solid !important;
+	background-color: #c7245a !important;
+}
+
+/*hover*/
+.no-touch .tfc-short.click:hover,
+.tfc-short.click:active {
+	border: 1px #c7245a solid !important;
+	background-color: #c7245a !important;
+}
+
+.tfc-cover.click {
+	border: 1px #7ab162 solid !important;
+	background-color: #78bc1e !important;
+}
+
+/*hover*/
+.no-touch .tfc-cover.click:hover,
+.tfc-cover.click:active {
+	border: 1px #6ea356 solid !important;
+	background-color: #78bc1e !important;
+}

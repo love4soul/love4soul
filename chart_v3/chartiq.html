@@ -44,14 +44,14 @@
 
 				<span stxbind="Layout.periodicity">1D</span>
 				<cq-menu>
-					<cq-item stxtap="changePeriod(1)">1M</cq-item>
-					<cq-item stxtap="changePeriod(5)">5M</cq-item>
-					<cq-item stxtap="changePeriod(10)">10M</cq-item>
-					<cq-item stxtap="changePeriod(15)">15M</cq-item>
-					<cq-item stxtap="changePeriod(30)">30M</cq-item>
-					<cq-item stxtap="changePeriod(60)">1H</cq-item>
-					<cq-item stxtap="changePeriod(240)">4H</cq-item>
-					<cq-item stxtap="changePeriod(1440)">1D</cq-item>
+					<cq-item stxtap="changePeriod(1);">1M</cq-item>
+					<cq-item stxtap="Layout.setPeriodicity(1,5)">5M</cq-item>
+					<cq-item stxtap="Layout.setPeriodicity(1,10)">10M</cq-item>
+					<cq-item stxtap="Layout.setPeriodicity(3,5)">15M</cq-item>
+					<cq-item stxtap="Layout.setPeriodicity(1,30)">30M</cq-item>
+					<cq-item stxtap="Layout.setPeriodicity(2,30)">1H</cq-item>
+					<cq-item stxtap="Layout.setPeriodicity(8,30)">4H</cq-item>
+					<cq-item stxtap="Layout.setPeriodicity(1, 'day')">1D</cq-item>
 				</cq-menu>
 			</cq-menu-wrap>
 			<cq-menu-wrap class="ciq-menu ciq-display collapse">
@@ -913,9 +913,8 @@ STX.QuoteFeed.MyFeed.prototype.fetch = function (params, cb) {
 		cb({
 		            quotes: []
 		        });
-    } else {        
+    } else {       
         if (params.endDate) {
-            
 			window.location.href = "ios://loadmore";
 			loadMoreCallback = cb;
 			
@@ -929,7 +928,6 @@ STX.QuoteFeed.MyFeed.prototype.fetch = function (params, cb) {
 };
 
 var behavior = {
-    // QuoteFeed.fetch() will be called every 5 seconds with startDate set to the last tick on the chart
     refreshInterval: 60
 };
 

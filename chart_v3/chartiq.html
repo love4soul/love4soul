@@ -944,13 +944,6 @@ STX.UI.Layout.prototype.setPeriodicity = function(node, periodicity, interval) {
 	}
 };
 
-STX.TFC.prototype.placeOrder = function(tfc, order, cb){
-    var self = this;
-    if(isAndroid() == false){
-		window.location.href = "ios://makeOrder?order="+JSON.stringify(order);
-	}
-};
-
 // Remove this if you do not support extended hours trading
 new STX.ExtendedHours(stxx,["post","pre"]);
 

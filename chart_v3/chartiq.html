@@ -44,14 +44,14 @@
 
 				<span stxbind="Layout.periodicity">1D</span>
 				<cq-menu>
-					<cq-item stxtap="changePeriod(1);">1M</cq-item>
+					<cq-item stxtap="Layout.setPeriodicity(1,1)">1M</cq-item>
 					<cq-item stxtap="Layout.setPeriodicity(1,5)">5M</cq-item>
 					<cq-item stxtap="Layout.setPeriodicity(1,10)">10M</cq-item>
 					<cq-item stxtap="Layout.setPeriodicity(3,5)">15M</cq-item>
 					<cq-item stxtap="Layout.setPeriodicity(1,30)">30M</cq-item>
 					<cq-item stxtap="Layout.setPeriodicity(2,30)">1H</cq-item>
 					<cq-item stxtap="Layout.setPeriodicity(8,30)">4H</cq-item>
-					<cq-item stxtap="Layout.setPeriodicity(1, 'day')">1D</cq-item>
+					<cq-item stxtap="Layout.setPeriodicity(1, 1440)">1D</cq-item>
 				</cq-menu>
 			</cq-menu-wrap>
 			<cq-menu-wrap class="ciq-menu ciq-display collapse">
@@ -877,12 +877,6 @@ function displayChart(name, data){
   stxx.newChart(newSymbol, data, null, finishedLoadingNewChart(stxx.chart.symbol, newSymbol));
 }
 
-function changePeriod(min){
-	if(isAndroid() == false){
-		window.location.href = "ios://period?p="+min;
-	}
-}
-
 function finishedLoadingNewChart(currentSymbol, newSymbol){
   $$("symbol").value=newSymbol;            // update the value of the symbol input
   return function(err){
@@ -934,6 +928,15 @@ var behavior = {
 stxx.attachQuoteFeed(new STX.QuoteFeed.MyFeed(), behavior); // Attach your QuoteFeed
 /****/
 
+/* Timeframe handlers */
+
+STX.UI.Layout.prototype.setPeriodicity = function(node, periodicity, interval) {
+    var mins = periodicity * interval;
+	
+	if(isAndroid() == false){
+		window.location.href = "ios://period?p="+min;
+	}
+};
 
 // Remove this if you do not support extended hours trading
 new STX.ExtendedHours(stxx,["post","pre"]);

@@ -1,6 +1,6 @@
 $(function() {
     // Set FALSE for mobile devices
-    var browserDebug = true;
+    var browserDebug = false;
 
     // Disable for production
     var loadTestData = true;

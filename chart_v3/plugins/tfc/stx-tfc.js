@@ -3399,6 +3399,7 @@ STX.TFC.prototype.printableOTO=function(oto){
  * @param  {Object} order The order to place
  */
 STX.TFC.prototype.confirmOrder=function(order){
+	console.log('original STX.TFC.prototype.confirmOrder');
 	var self=this;
 	this.modalEnd();
 	STX.unappendClassName($$$("#tfcConfirmOrder"), "tfc-pending");

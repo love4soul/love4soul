@@ -1552,7 +1552,7 @@
 		 * @param  {number} i Index into STX.Views.views of the requested view
 		 * @memberOf STX.Views
 		 * @version ChartIQ Advanced Package
-		 * @since TBD
+		 * @since 2016-06-21
 		 */
 		STX.Views.updateGUI=null;
 		

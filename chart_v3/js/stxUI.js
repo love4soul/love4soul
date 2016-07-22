@@ -62,6 +62,10 @@ jQuery.fn.extend({
 		}
 
 		return this.original;
+	},
+	emptyExceptTemplate: function(){
+		this.children().not("template").remove();
+		return this;
 	}
 });
 
@@ -167,7 +171,8 @@ STX.UI.Selectors.noClose="[cq-no-close]";
 /**
  * Convenience function for making a new jquery node from a HTML5 <template>
  * @param  {Selector} node Selector or HTMLElement
- * @param {HTMLElement} [appendTo] If set, then the template will automatically be appended to this node
+ * @param {HTMLElement} [appendTo] If set, then the template will automatically be appended to this node.
+ * If appendTo==true then the new node will automatically be added in place (appended to the template's parent)
  * @return {JQuery}      A jquery node
  */
 STX.UI.makeFromTemplate=function(node, appendTo){
@@ -184,7 +189,8 @@ STX.UI.makeFromTemplate=function(node, appendTo){
 		// found element
 		if(child.nodeType == 1){
 			jq=$(child);
-			if(appendTo) $(appendTo).append(newNode);
+			if(appendTo===true) $(node).parent().append(newNode);
+			else if(appendTo) $(appendTo).append(newNode);
 			break;
 		}
 	}
@@ -220,7 +226,7 @@ STX.UI.Context=function(stx, topNode, params){
 	// Search through all of the components that have registered themselves. Call setContext() on each
 	// so that they can get their context. This usually initializes and makes the component active.
 	for(var i=0;i<this.components.length;i++){
-		this.components[i].setContext(this);
+		this.components[i].setContextPrivate(this);
 	}
 };
 
@@ -356,6 +362,10 @@ STX.UI.Context.prototype.getHelpers=function(node, binding, attribute){
 		}
 		helpers=this.findNearest(node, helperName);
 		if(!helpers){
+			if(!STX.UI[helperName]){
+				console.log("Helper " + helperName + " not found");
+				return null;
+			}
 			helpers=[new STX.UI[helperName](this.topNode, this)];
 		}
 	}else{ // bind to nearest web component // chart()
@@ -1113,6 +1123,15 @@ STX.UI.Context.prototype.observe=function(params){
 	observed({name:params.member}); // initialize
 };
 
+STX.UI.animatePrice=function(node, newPrice, oldPrice){
+	node.removeClass("cq-stable");
+	if(newPrice>oldPrice) node.addClass("cq-up");
+	else if(newPrice<oldPrice) node.addClass("cq-down");
+	setTimeout(function(){
+		node.addClass("cq-stable").removeClass("cq-up").removeClass("cq-down");
+	},0);
+};
+
 /**
  * Abstract class for WebComponents that use a STX.UI.Context
  * @type {HTMLElement}
@@ -1133,7 +1152,7 @@ STX.UI.ContextTag.setContextHolder=function(){
 
 	// This should only get called for components that are generated dynamically, after a context
 	// has already been established
-	if(contextHolder.STX.UI.context) this.setContext(contextHolder.STX.UI.context);
+	if(contextHolder.STX.UI.context) this.setContextPrivate(contextHolder.STX.UI.context);
 };
 
 /**
@@ -1142,6 +1161,10 @@ STX.UI.ContextTag.setContextHolder=function(){
  * @param {STX.UI.Context} context The context
  */
 STX.UI.ContextTag.setContext=function(context){
+	// override me
+};
+
+STX.UI.ContextTag.setContextPrivate=function(context){
 	this.context=context;
 	var node=$(this);
 	if(typeof(node.attr("cq-marker"))!="undefined"){
@@ -1154,6 +1177,7 @@ STX.UI.ContextTag.setContext=function(context){
 			permanent:true
 		});
 	}
+	this.setContext(context);
 };
 
 /**
@@ -1423,7 +1447,6 @@ STX.UI.StudyMenu.prototype.renderMenu=function(){
  * Pops up a study dialog for the given study
  */
 STX.UI.StudyMenu.prototype.studyDialog=function(params){
-    console.log(params);
 	var studyDialog=this.context.getHelpers(null, "StudyDialog");
 	if(!studyDialog.length){
 		console.log("STX.UI.StudyEdit.prototype.editPanel: no StudyDialog available");
@@ -1456,104 +1479,6 @@ STX.UI.StudyMenu.prototype.pickStudy=function(node, studyName){
 			}
 		}
 	}
-};
-
-/**
- * UI Helper that maintains a legend of studies. Click on the "X" to remove the study.
- * @param {HtmlElement} node The node in which to put the study legend. This should contain a template with class stxTemplate.
- * @param {STX.UI.Context} context The context
- * @param {object} [params] Optional parameters
- * @param {Function} [params.cb] Callback which will be called whenever the legend changes
- * @param {HTMLElement} [params.showHide] The element to show or hide depending on whether there are any studies
- * @name STX.UI.StudyLegend
- * @constructor 
- */
-STX.UI.StudyLegend=function(node, context, params){
-	this.params=params?params:{};
-	this.node=$(node);
-	this.context=context;
-	this.template=this.node.find("*[cq-template]");
-	this.template.detach();
-	this.previousStudies={};
-	context.advertiseAs(this, "StudyLegend");
-	this.begin();
-};
-
-STX.UI.StudyLegend.stxInheritsFrom(STX.UI.Helper);
-
-/**
- * Begins running the StudyLegend.
- * @memberOf STX.UI.StudyLegend
- * @private
- */
-STX.UI.StudyLegend.prototype.begin=function(){
-	var self=this;
-	this.addInjection("append", "createDataSet", function(){
-		self.showHide();
-		self.renderLegend();
-	});
-};
-
-
-STX.UI.StudyLegend.prototype.showHide=function(){
-	if(STX.isEmpty(this.context.stx.layout.studies)){
-		if(this.params.showHide) $(this.params.showHide).css({"display":"none"});
-	}else{
-		if(this.params.showHide) $(this.params.showHide).css({"display":""});		
-	}
-	if(this.params.cb) this.params.cb();
-};
-/**
- * Renders the legend based on the current studies in the STXChart object. Since this gets called
- * continually in the draw animation loop we are very careful not to render unnecessarily.
- * @memberOf STX.UI.StudyLegend
- */
-STX.UI.StudyLegend.prototype.renderLegend=function(){
-	var stx=this.context.stx;
-	if(!stx.layout.studies) return;
-	var foundAChange=false;
-	var id;
-
-	// Logic to determine if the studies have changed, otherwise don't re-create the legend
-	if(STX.objLength(this.previousStudies)==STX.objLength(stx.layout.studies)){
-		for(id in stx.layout.studies){
-			if(!this.previousStudies[id]){
-				foundAChange=true;
-				break;
-			}
-		}
-		if(!foundAChange) return;
-	}
-	this.previousStudies=STX.shallowClone(stx.layout.studies);
-
-	$(this.node).empty();
-
-	function closeStudy(self, sd){
-		return function(e){
-		    STX.Studies.removeStudy(self.context.stx,sd);
-		    self.renderLegend();
-		};
-	}
-	function editStudy(self, sd){
-		return function(e){
-			self.context.closeMenu();
-			var studyEdit=self.context.getHelpers(self.node, "StudyEdit")[0];
-			var isPanelStudy=!(sd.study.overlay || sd.study.underlay);
-			var params={stx:stx,sd:sd,inputs:sd.inputs,outputs:sd.outputs, parameters:sd.parameters};
-			studyEdit.editPanel(params);
-		};
-	}
-	for(id in stx.layout.studies){
-		var sd=stx.layout.studies[id];
-		var newChild=this.template.clone();
-		this.node.append(newChild);
-		newChild.find("cq-label").html(id);
-		var close=newChild.find(".ciq-close");
-		close.stxtap(closeStudy(this, sd));
-		var edit=newChild.find(".ciq-edit");
-		edit.stxtap(editStudy(this, sd));
-	}
-	this.showHide();
 };
 
 
@@ -1776,155 +1701,6 @@ STX.UI.HeadsUp.prototype.followMouse=function(tick){
 	this.marker.params.x=tick;
 	var self=this;
 	self.marker.render();
-};
-
-
-
-
-
-/**
- * UI Helper that displays the stock symbol and current price/change. The price will reflect
- * the Close in the last element in the dataSet. The change will only be displayed if this.previousClose is set (from an external source).
- * The node that is passed in is used as a template. It is removed from the DOM and then
- * added back to the subholder of the chart. The node should contain the following sections:
- * - cq-symbol - The DIV in which to update the stock symbol
- * - cq-current-value - The DIV in which to place the current price
- * - cq-todays-change - The DIV in which to place today's change (if available)
- * - cq-todays-change-pct - The DIV in which to place today's change in percentage (if available)
- * - cq-chart-price - A class of "stx-up" or "stx-down" will be added if this exists which can be used
- * to style arrows
- * @param {HtmlElement} node The node which should be the template for the title
- * @param {STX.UI.Context} context The context
- * @param {Object} [params] Optional parameters
- * @param {Boolean} [params.autoStart=true] If true then start the head's up on construction
- * @name STX.UI.Title
- * @constructor
- */
-STX.UI.Title=function(node, context, params){
-	this.params=params?params:{};
-	if(typeof this.params.autoStart=="undefined") this.params.autoStart=true;
-	this.node=$(node);
-	this.node.detach();
-	this.context=context;
-	this.marker=null;
-	this.title=null; // Use this for document.title
-	context.advertiseAs(this, "Title");
-	if(this.params.autoStart) this.begin();
-};
-
-STX.UI.Title.stxInheritsFrom(STX.UI.Helper);
-
-/**
- * Keep this value up to date in order to calculate change from yesterday's close
- * @type {Float}
- * @memberOf  STX.UI.Title
- */
-STX.UI.Title.prototype.previousClose=null;
-
-/**
- * Updates the values in the node
- * @memberOf  STX.UI.Title
- */
-STX.UI.Title.prototype.update=function(){
-	var stx=this.context.stx;
-	if(!this.marker){
-		this.marker=new STX.Marker({
-			stx: stx,
-			node: this.node.clone()[0],
-			xPositioner:"none",
-			yPositioner:"none",
-			permanent:true
-		});
-	}
-	var node=$(this.marker.node);
-	node.addClass("stx-show");
-	var symbolDiv=node.find("cq-symbol");
-	var symbolDescriptionDiv=node.find("cq-symbol-description");
-	var currentPriceDiv=node.find("cq-current-price");
-	var todaysChangeDiv=node.find("cq-todays-change");
-	var todaysChangePctDiv=node.find("cq-todays-change-pct");
-	var chartPriceDiv=node.find("cq-chart-price");
-	var changeDiv=node.find("cq-change");
-	if(symbolDiv.length){
-		symbolDiv.text(stx.chart.symbol);
-	}
-	var todaysChange="", todaysChangePct=0, todaysChangeDisplay="", currentPrice="";
-	var currentQuote=stx.currentQuote();
-	currentPrice=currentQuote?currentQuote.Close:"";
-	if(currentPriceDiv.length){
-		currentPriceDiv.text(currentPrice);
-	}
-	
-	if(symbolDescriptionDiv.length){
-		symbolDescriptionDiv.text(stx.chart.symbolDescription);
-	}
-
-	var previousCloseField=this.params.previousCloseField?this.params.previousCloseField:"PrevClose";
-	if(currentQuote && this.previousClose){
-		var panel=stx.panels[this.marker.panelName];
-		todaysChange=STX.fixPrice(currentQuote.Close-this.previousClose, panel);
-		todaysChangePct=todaysChange/this.previousClose*100;
-		if(stx.internationalizer){
-			todaysChangeDisplay=stx.internationalizer.percent2.format(todaysChangePct/100);
-		}else{
-			todaysChangeDisplay=todaysChangePct.toFixed(2) + "%";
-		}
-		changeDiv.css({"display":"block"});
-	}else{
-		changeDiv.css({"display":"none"});
-	}
-	var todaysChangeAbs=Math.abs(todaysChange);
-	if(todaysChangeDiv.length){
-		todaysChangeDiv.text(todaysChangeAbs);
-	}
-	if(todaysChangePctDiv.length){
-		todaysChangePctDiv.text(todaysChangeDisplay);
-	}
-	if(chartPriceDiv.length){
-		chartPriceDiv.removeClass("stx-up");
-		chartPriceDiv.removeClass("stx-down");
-		if(todaysChangeDisplay!=="" && todaysChangePct>0){
-			chartPriceDiv.addClass("stx-up");
-		}else if(todaysChangeDisplay!=="" && todaysChangePct<0){
-			chartPriceDiv.addClass("stx-down");
-		}
-	}
-
-	// These strange characters create some spacing so that the title appears
-	// correctly in a browser tab
-	if(stx.chart.symbol){
-		this.title=stx.chart.symbol + " \u200b \u200b " +
-		currentPrice + " \u200b \u200b \u200b ";
-		if(todaysChangePct>0){
-			this.title+="\u25b2 " + todaysChangeAbs;
-		}else if(todaysChangePct<0){
-			this.title+="\u25bc " + todaysChangeAbs;
-		}
-	}
-};
-
-/**
- * Begins the Title helper. This observes the chart and updates the title elements as necessary.
- * @memberOf  STX.UI.Title
- */
-STX.UI.Title.prototype.begin=function(){
-	var self=this;
-	this.addInjection("append", "createDataSet", function(){
-		self.update();
-	});
-	this.update();
-};
-
-STX.UI.Title=function(node, context, params){
-    this.params=params?params:{};
-    if(typeof this.params.autoStart=="undefined") this.params.autoStart=true;
-    this.node=$(node);
-    this.node.detach();
-    this.context=context;
-    this.marker=null;
-    this.title=null; // Use this for document.title
-    context.advertiseAs(this, "Title");
-    if(this.params.autoStart) this.begin();
 };
 
 
@@ -2883,14 +2659,12 @@ STX.UI.Prototypes.Menu.attachedCallback=function(){
 };
 
 STX.UI.Prototypes.Scroll.setContext=function(context){
-	STX.UI.ContextTag.setContext.apply(this, arguments);
 	this.context.addClaim(this, STX.UI.KEYSTROKE);
 };
 
 STX.UI.Prototypes.Loader=Object.create(STX.UI.ContextTag);
 
 STX.UI.Prototypes.Loader.setContext=function(context){
-	STX.UI.ContextTag.setContext.apply(this, arguments);
 	this.context.setLoader(this);
 	context.advertiseAs(this, "Loader");
 };
@@ -2982,7 +2756,6 @@ STX.UI.Prototypes.DrawingToolbar.defaultElements={
 
 
 STX.UI.Prototypes.DrawingToolbar.setContext=function(context){
-	STX.UI.ContextTag.setContext.apply(this, arguments);
 	this.noToolSelectedText=$(this.params.toolSelection).text();
 	this.sync();
 };
@@ -3205,7 +2978,6 @@ STX.UI.Prototypes.Toggle=Object.create(STX.UI.ContextTag);
 
 
 STX.UI.Prototypes.Toggle.setContext=function(context){
-	STX.UI.ContextTag.setContext.apply(this, arguments);
 	this.currentValue=false;
 	this.params={
 		member: null,
@@ -3387,7 +3159,6 @@ STX.UI.Prototypes.SidePanel.resizeMyself=function(){
 STX.UI.Prototypes.Dialog=Object.create(STX.UI.ContextTag);
 
 STX.UI.Prototypes.Dialog.setContext=function(context){
-	STX.UI.ContextTag.setContext.apply(this, arguments);
 	this.context.registerForResize(this);
 };
 
@@ -3515,10 +3286,11 @@ STX.UI.Prototypes.Swatch.attachedCallback=function(){
 STX.UI.Prototypes.Swatch.setColor=function(color, percolate){
 	var node=$(this);
 	var bgColor=STX.getBackgroundColor(this.parentNode);
-	var hsvb=STX.hsv(bgColor);
-	var hsvf=STX.hsv(color);
-	if(Math.abs(hsvb[2] - hsvf[2])<0.4){
-		border=STX.chooseForegroundColor(color);
+	var hslb=STX.hsl(bgColor);
+	if(!color) color="transparent";
+	var hslf=STX.hsl(color);
+	if((Math.abs(hslb[2] - hslf[2])<0.2) || STX.isTransparent(color)){
+		border=STX.chooseForegroundColor(bgColor);
 		node.css({"border": "solid " + border + " 1px"});
 	}else{
 		node.css({"border": ""});		
@@ -3540,7 +3312,9 @@ STX.UI.Prototypes.Swatch.launchColorPicker=function(){
 	colorPicker.callback=function(self){return function(color){
 		self.setColor(color);
 	};}(this);
-	colorPicker.display({node:node});
+	var overrides=this.node.attr("cq-overrides");
+	if(overrides) overrides=overrides.split(",");
+	colorPicker.display({node:node, overrides:overrides});
 };
 
 /**
@@ -3587,11 +3361,12 @@ STX.UI.Prototypes.ColorPicker.attachedCallback=function(){
 		}
 		this.params.colorMap.push(row);
 	}
+	this.cqOverrides=node.find("cq-overrides");
+	this.template=this.cqOverrides.find("template");
 	this.attached=true;
 };
 
 STX.UI.Prototypes.ColorPicker.setContext=function(context){
-	STX.UI.ContextTag.setContext.apply(this, arguments);
 	context.advertiseAs(this, "ColorPicker");
 	this.initialize();
 };
@@ -3604,7 +3379,9 @@ STX.UI.Prototypes.ColorPicker.setColors=function(colorMap){
 STX.UI.Prototypes.ColorPicker.initialize=function(){
 	var self=this;
 	this.picker=$(this);
-	this.picker.empty();// allow re-initialize, with new colors for instance
+	this.colors=this.picker.find("cq-colors");
+	if(!this.colors.length) this.colors=this.picker;
+	this.colors.empty();// allow re-initialize, with new colors for instance
 
 	function pickColor(self, color){
 		return function(){
@@ -3613,7 +3390,7 @@ STX.UI.Prototypes.ColorPicker.initialize=function(){
 	}
 	for(var a=0;a<this.params.colorMap.length;a++){
 		var lineOfColors=this.params.colorMap[a];
-		var ul=$("<UL></UL>").appendTo(this.picker);
+		var ul=$("<UL></UL>").appendTo(this.colors);
 		for(var b=0;b<lineOfColors.length;b++){
 			var li=$("<LI></LI>").appendTo(ul);
 			var span=$("<SPAN></SPAN>").appendTo(li);
@@ -3631,6 +3408,8 @@ STX.UI.Prototypes.ColorPicker.pickColor=function(color){
 /**
  * Displays the color picker in proximity to the node passed in
  * @param  {HTMLElement} _node The node near where to display the color picker
+ * @param {Array} [overrides] Optional array of overrides. For each of these, a button will be created that if pressed
+ * will pass that override back instead of the color
  * @memberOf  STX.UI.ColorPicker
  */
 STX.UI.Prototypes.ColorPicker.display=function(activator){
@@ -3654,6 +3433,16 @@ STX.UI.Prototypes.ColorPicker.display=function(activator){
 	if(y+h>docHeight) y=docHeight-h-20; // 20 for a little whitespace and padding
 
 	this.picker.css({"left": x+"px","top": y+"px"});
+	this.cqOverrides.emptyExceptTemplate();
+
+	if(activator.overrides && this.template.length){
+		for(var i=0;i<activator.overrides.length;i++){
+			var override=activator.overrides[i];
+			var n=STX.UI.makeFromTemplate(this.template, true);
+			n.text(override);
+			n.stxtap((function(self,override){return function(){self.pickColor(override);};})(this, override));
+		}
+	}
 
 	if(!this.picker.hasClass(this.context.menuParams.activeClassName)){
 		this.context.activateMenu(this.picker); // Manually activate the color picker
@@ -3690,7 +3479,6 @@ STX.UI.Prototypes.StudyDialog.attachedCallback=function(){
 };
 
 STX.UI.Prototypes.StudyDialog.setContext=function(context){
-	STX.UI.ContextTag.setContext.apply(this, arguments);
 	context.advertiseAs(this, "StudyDialog");
 };
 
@@ -3765,7 +3553,6 @@ STX.UI.Prototypes.StudyDialog.configure=function(params){
 	inputs.empty();
 	for(var i in this.helper.inputs){
 		var input=this.helper.inputs[i];
-        console.log(this.inputTemplate);
 		var newInput=STX.UI.makeFromTemplate(this.inputTemplate, inputs);
 		this.menuTemplate=newInput.find("template[cq-menu]");
 		newInput.find(".ciq-heading").text(input.heading);
@@ -3810,6 +3597,108 @@ STX.UI.Prototypes.StudyDialog.configure=function(params){
 
 
 
+/**
+ * UI Helper that maintains a legend of studies. Click on the "X" to remove the study. Click on the cog to edit the study.
+ * Optionally only show overlays. cq-overlays-only
+ * Optionally only show studies in this panel. cq-panel-only
+ * @constructor 
+ */
+STX.UI.Prototypes.StudyLegend=Object.create(STX.UI.ContextTag);
+
+STX.UI.Prototypes.StudyLegend.setContext=function(context){
+	this.template=this.node.find("template");
+	this.previousStudies={};
+	this.begin();
+};
+
+STX.UI.Prototypes.StudyLegend.setCallback=function(cb){
+	this.cb=cb;
+};
+
+/**
+ * Begins running the StudyLegend.
+ * @memberOf STX.UI.StudyLegend
+ * @private
+ */
+STX.UI.Prototypes.StudyLegend.begin=function(){
+	var self=this;
+	this.addInjection("append", "createDataSet", function(){
+		self.showHide();
+		self.renderLegend();
+	});
+};
+
+STX.UI.Prototypes.StudyLegend.showHide=function(){
+	if(STX.isEmpty(this.context.stx.layout.studies)){
+		$("cq-study-legend").css({"display":"none"});
+	}else{
+		$("cq-study-legend").css({"display":""});		
+	}
+	if(this.cb) this.cb();
+};
+
+/**
+ * Renders the legend based on the current studies in the STXChart object. Since this gets called
+ * continually in the draw animation loop we are very careful not to render unnecessarily.
+ * @memberOf STX.UI.StudyLegend
+ */
+STX.UI.Prototypes.StudyLegend.renderLegend=function(){
+	var stx=this.context.stx;
+	if(!stx.layout.studies) return;
+	var foundAChange=false;
+	var id;
+
+	// Logic to determine if the studies have changed, otherwise don't re-create the legend
+	if(STX.objLength(this.previousStudies)==STX.objLength(stx.layout.studies)){
+		for(id in stx.layout.studies){
+			if(!this.previousStudies[id]){
+				foundAChange=true;
+				break;
+			}
+		}
+		if(!foundAChange) return;
+	}
+	this.previousStudies=STX.shallowClone(stx.layout.studies);
+
+	$(this.template).parent().emptyExceptTemplate();
+
+	function closeStudy(self, sd){
+		return function(e){
+		    STX.Studies.removeStudy(self.context.stx,sd);
+		    self.renderLegend();
+		};
+	}
+	function editStudy(self, sd){
+		return function(e){
+			self.context.closeMenu();
+			var studyEdit=self.context.getHelpers(self.node, "StudyEdit")[0];
+			var isPanelStudy=!(sd.study.overlay || sd.study.underlay);
+			var params={stx:stx,sd:sd,inputs:sd.inputs,outputs:sd.outputs, parameters:sd.parameters};
+			studyEdit.editPanel(params);
+		};
+	}
+	var overlaysOnly=typeof(this.node.attr("cq-overlays-only"))!="undefined";
+	var panelOnly=typeof(this.node.attr("cq-panel-only"))!="undefined";
+	var holder=this.node.parents(".stx-holder");
+	var panelName=null;
+	if(holder.length){
+		panelName=holder.attr("cq-panel-name");
+	}
+	for(id in stx.layout.studies){
+		var sd=stx.layout.studies[id];
+		if(panelOnly && sd.panel!=panelName) continue;
+		if(overlaysOnly && !sd.libraryEntry.overlay) continue;
+		var newChild=STX.UI.makeFromTemplate(this.template, true);
+		newChild.find("cq-label").html(id);
+		var close=newChild.find(".ciq-close");
+		close.stxtap(closeStudy(this, sd));
+		var edit=newChild.find(".ciq-edit");
+		edit.stxtap(editStudy(this, sd));
+	}
+	this.showHide();
+};
+
+
 STX.UI.Prototypes.Undo=Object.create(STX.UI.ContextTag);
 
 STX.UI.Prototypes.Undo.createdCallback=function(){
@@ -3830,7 +3719,6 @@ STX.UI.Prototypes.Undo.attachedCallback=function(){
 };
 
 STX.UI.Prototypes.Undo.setContext=function(context){
-	STX.UI.ContextTag.setContext.apply(this, arguments);
 	this.manageContext(this.context);
 };
 
@@ -4097,10 +3985,11 @@ STX.UI.Prototypes.Themes.attachedCallback=function(){
 	this.attached=true;
 	this.builtInMenu=$(this).find("cq-themes-builtin");
 	this.builtInTemplate=this.builtInMenu.find("template");
+	this.customMenu=$(this).find("cq-themes-custom");
+	this.customTemplate=this.customMenu.find("template");
 };
 
 STX.UI.Prototypes.Themes.setContext=function(context){
-	STX.UI.ContextTag.setContext.apply(this, arguments);
 	context.advertiseAs(this, "Themes");
 };
 /**
@@ -4112,47 +4001,111 @@ STX.UI.Prototypes.Themes.setContext=function(context){
 STX.UI.Prototypes.Themes.initialize=function(params){
 	this.params={};
 	if(params) this.params=params;
+	if(!this.params.customThemes) this.params.customThemes={};
+	if(!this.params.builtInThemes) this.params.builtInThemes={};
 	if(!this.params.nameValueStore) this.params.nameValueStore=new STX.NameValueStore();
 
 	var self=this;
-	function getFromDB(err, state){
-		if(err) return;
-		if(state){
-			self.setState(state);
-		}else{
-			self.setState({builtIn:self.params.defaultTheme});
-		}
+
+	if(this.params.nameValueStore){
+		// Retrieve any custom themes the user has created
+		this.params.nameValueStore.get("CIQ.Themes.custom", function(err, result){
+			if(!err && result){
+				self.params.customThemes=result;
+			}
+			// Set the current theme to the last one selected by user
+			self.params.nameValueStore.get("CIQ.Themes.current", function(err, result){
+				if(!err && result && result.theme){
+					self.loadTheme(result.theme);
+				}else{
+					self.loadTheme(self.params.defaultTheme);
+				}
+				self.configureMenu();
+			});
+		});
+	}else{
+		this.loadTheme(self.params.defaultTheme);
 	}
+};
+
+STX.UI.Prototypes.Themes.configureMenu=function(){
+	var self=this;
 	function loadBuiltIn(self, className){
 		return function(e){
 			self.loadBuiltIn(className);
 			if(self.params.callback){
-				self.params.callback(self.getState());
+				self.params.callback({theme:self.currentTheme});
 			}
-			self.params.nameValueStore.set("UIThemes", self.getState());
+			self.persist("current");
 		};
 	}
-	var builtInThemes=this.params.builtInThemes;
-	if(builtInThemes){
-		for(var className in builtInThemes){
-			var display=builtInThemes[className];
-			var newMenuItem=STX.UI.makeFromTemplate(this.builtInTemplate);
-			newMenuItem.text(display);
-			newMenuItem[0].selectFC=loadBuiltIn(this, className);
-			newMenuItem.on("tap", newMenuItem[0].selectFC);
-			this.builtInMenu.append(newMenuItem);
-		}
+	function loadCustom(self, themeName){
+		return function(e){
+			self.loadCustom(themeName);
+			if(self.params.callback){
+				self.params.callback({theme:self.currentTheme});
+			}
+			self.persist("current");
+		};
 	}
-	this.params.nameValueStore.get("UIThemes", getFromDB);
+	this.builtInMenu.emptyExceptTemplate();
+	this.customMenu.emptyExceptTemplate();
+	var display,newMenuItem;
+	var builtInThemes=this.params.builtInThemes;
+	for(var className in builtInThemes){
+		display=builtInThemes[className];
+		newMenuItem=STX.UI.makeFromTemplate(this.builtInTemplate);
+		newMenuItem.text(display);
+		newMenuItem[0].selectFC=loadBuiltIn(this, className);
+		newMenuItem.on("tap", newMenuItem[0].selectFC);
+		this.builtInMenu.append(newMenuItem);
+	}
+
+	var customThemes=this.params.customThemes;
+	for(var themeName in customThemes){
+		display=themeName;
+		newMenuItem=STX.UI.makeFromTemplate(this.customTemplate);
+		newMenuItem.find("cq-label").text(display);
+		newMenuItem[0].selectFC=loadCustom(this, themeName);
+		newMenuItem.on("tap", newMenuItem[0].selectFC);
+		newMenuItem[0].close=(function(self, themeName){ return function(){ self.removeTheme(themeName);}; })(this, themeName);
+		this.customMenu.append(newMenuItem);
+	}
+};
+
+STX.UI.Prototypes.Themes.removeTheme=function(themeName){
+	delete this.params.customThemes[themeName];
+	this.configureMenu();
+	this.persist();
+};
+
+STX.UI.Prototypes.Themes.persist=function(which){
+	if(!this.params.nameValueStore) return;
+	if(!which || which=="current") this.params.nameValueStore.set("CIQ.Themes.current", {theme:this.currentTheme});
+	if(!which || which=="custom") this.params.nameValueStore.set("CIQ.Themes.custom", this.params.customThemes);
+};
+
+STX.UI.Prototypes.Themes.addCustom=function(theme){
+	this.params.customThemes[theme.name]=theme;
+	this.currentTheme=theme.name;
+	this.configureMenu();
+	this.persist();
 };
 
 /**
  * @private
  * @memberOf STX.UI.Themes
  */
-STX.UI.Prototypes.Themes.reinitializeChart=function(){
+STX.UI.Prototypes.Themes.reinitializeChart=function(theme){
 	var stx=this.context.stx;
 	stx.styles={};
+	stx.chart.container.style.backgroundColor="";
+	if(theme){
+		var helper=new STX.ThemeHelper({stx:stx});
+		helper.settings=theme.settings;
+		helper.update();		
+	}
+	stx.updateListeners("theme");
 	if(stx.displayInitialized){
 		stx.headsUpHR();
 		stx.clearPixelCache();
@@ -4161,26 +4114,13 @@ STX.UI.Prototypes.Themes.reinitializeChart=function(){
 	}
 };
 
-/**
- * Sets the state of themes by loading in a state object previously received from getState() or callback.
- * @param {Object} state A theme state object
- * See  {@link STX.UI.Themes#getState}
- */
-STX.UI.Prototypes.Themes.setState=function(state){
-	if(state.builtIn){
-		this.loadBuiltIn(state.builtIn);
-	}
-};
-
-/**
- * Returns an object that can be used to persist state. This will also be what is passed to params.callback.
- * @return {Object} A JavaScript object that can be used to persist state.
- * See {@link STX.UI.Themes#setState}
- */
-STX.UI.Prototypes.Themes.getState=function(){
-	return {
-		builtIn: this.currentLoadedBuiltIn
-	};
+STX.UI.Prototypes.Themes.loadTheme=function(themeName){
+	if(this.params.customThemes[themeName])
+		this.loadCustom(themeName);
+	else if(this.params.builtInThemes[themeName])
+		this.loadBuiltIn(themeName);
+	else
+		this.loadBuiltIn(this.params.defaultTheme);
 };
 
 STX.UI.Prototypes.Themes.loadBuiltIn=function(className){
@@ -4188,8 +4128,106 @@ STX.UI.Prototypes.Themes.loadBuiltIn=function(className){
 		$(this.context.topNode).removeClass(this.currentLoadedBuiltIn);
 	}
 	$(this.context.topNode).addClass(className);
-	this.currentLoadedBuiltIn=className;
+	this.currentLoadedBuiltIn=this.currentTheme=className;
 	this.reinitializeChart();
+};
+
+STX.UI.Prototypes.Themes.loadCustom=function(themeName){
+	if(this.currentLoadedBuiltIn){
+		$(this.context.topNode).removeClass(this.currentLoadedBuiltIn);
+	}
+	var theme=this.params.customThemes[themeName];
+	if(theme.builtIn) $(this.context.topNode).addClass(theme.builtIn);
+	this.currentLoadedBuiltIn=theme.builtIn;
+	this.currentTheme=theme.name;
+	this.reinitializeChart(theme);
+};
+
+STX.UI.Prototypes.Themes.newTheme=function(){
+	var dialog=this.context.getHelpers(null, "ThemeDialog");
+	if(!dialog.length){
+		console.log("STX.UI.Prototypes.Themes.newTheme: no ThemeDialog available");
+		return;
+	}
+	dialog=dialog[0];
+	dialog.configure(null, this);
+	$(dialog).parents("cq-dialog")[0].show();
+};
+
+
+STX.UI.Prototypes.ThemePiece=Object.create(STX.UI.ContextTag);
+
+STX.UI.Prototypes.ThemePiece.setColor=function(color){
+	if(color=="Hollow" || color=="No Border"){
+		color="transparent";
+		this.node.find("cq-swatch")[0].setColor("transparent", false);
+	}
+	this.containerExecute("setValue", this.piece.obj, this.piece.field, color);
+};
+
+STX.UI.Prototypes.ThemePiece.setBoolean=function(result){
+	this.containerExecute("setValue", this.piece.obj, this.piece.field, result);
+};
+
+STX.UI.Prototypes.ThemeDialog=Object.create(STX.UI.ContextTag);
+
+
+STX.UI.Prototypes.ThemeDialog.setContext=function(context){
+	context.advertiseAs(this, "ThemeDialog");
+};
+
+STX.UI.Prototypes.ThemeDialog.setValue=function(obj, field, value){
+	obj[field]=value;
+	this.helper.update();
+};
+
+STX.UI.Prototypes.ThemeDialog.save=function(){
+
+	var themeName=this.node.find("cq-action input").val();
+	var theme={
+		settings:STX.clone(this.helper.settings),
+		name: themeName,
+		builtIn:null
+	};
+	//var themeMenu=this.context.getHelpers(null, "Themes"); // TODO, fix advertiseAs by using bus, eliminate auto-creation of helpers
+	var themeMenu=this.themeMenu;
+	if(themeMenu){
+		theme.builtIn=themeMenu.currentLoadedBuiltIn;
+		themeMenu.addCustom(theme);
+	}
+	this.context.stx.updateListeners("theme");
+	this.node.parents("cq-dialog")[0].close();
+};
+
+STX.UI.Prototypes.ThemeDialog.configure=function(themeName, themeMenu){
+	this.themeMenu=themeMenu;
+	this.helper=new STX.ThemeHelper({stx:this.context.stx});
+
+	var self=this;
+	function configurePiece(name, obj, field, type){
+		var cu=self.node.find('cq-theme-piece[cq-piece="' + name + '"]');
+
+		cu[0].piece={obj:obj, field:field};
+		if(type=="color"){
+			cu.find("cq-swatch")[0].setColor(obj[field], false);
+		}
+	}
+	configurePiece("cu", this.helper.settings.chartTypes["Candle/Bar"].up, "color", "color");
+	configurePiece("cd", this.helper.settings.chartTypes["Candle/Bar"].down, "color", "color");
+	configurePiece("wu", this.helper.settings.chartTypes["Candle/Bar"].up, "wick", "color");
+	configurePiece("wd", this.helper.settings.chartTypes["Candle/Bar"].down, "wick", "color");
+	configurePiece("bu", this.helper.settings.chartTypes["Candle/Bar"].up, "border", "color");
+	configurePiece("bd", this.helper.settings.chartTypes["Candle/Bar"].down, "border", "color");
+	configurePiece("lc", this.helper.settings.chartTypes["Line"], "color", "color");
+	configurePiece("mc", this.helper.settings.chartTypes["Mountain"], "color", "color");
+	configurePiece("bg", this.helper.settings.chart["Background"], "color", "color");
+	configurePiece("gl", this.helper.settings.chart["Grid Lines"], "color", "color");
+	configurePiece("dd", this.helper.settings.chart["Grid Dividers"], "color", "color");
+	configurePiece("at", this.helper.settings.chart["Axis Text"], "color", "color");
+
+	if(!themeName) themeName="My Theme";
+	this.node.find("cq-action input").val(themeName);
+
 };
 
 /**
@@ -4247,23 +4285,29 @@ STX.UI.Prototypes.Comparison.renderLegend=function(){
 	var node=$(this);
 	var key=node.find("cq-comparison-key").cqvirtual();
 	var stx=this.context.stx;
+	var q=stx.currentQuote();
 	for(var s in stx.chart.series){
 		var series=stx.chart.series[s];
 		if(!series.parameters.isComparison) continue;
 		var frag=STX.UI.makeFromTemplate(this.template);
-		var item=frag.find("cq-comparison-item");
 		var swatch=frag.find("cq-comparison-swatch");
 		var label=frag.find("cq-comparison-label");
 		var description=frag.find("cq-comparison-description");
+		var price=frag.find("cq-comparison-price");
 		var loader=frag.find("cq-comparison-loader");
 		var btn=frag.find(".ciq-close");
 		swatch.css({"background-color": series.parameters.color});
 		label.text(stx.translateIf(series.display));
 		description.text(stx.translateIf(series.description));
+		frag.attr("cq-symbol", s);
+
+		if(price.length){
+			price.text(stx.padOutPrice(q[s]));
+		}
 
 		if(this.loading[series.parameters.symbolObject.symbol]) loader.addClass("stx-show");
 		else loader.removeClass("stx-show");
-		if(series.parameters.error) item.attr("cq-error", true);
+		if(series.parameters.error) frag.attr("cq-error", true);
 		btn.stxtap(function(self, s, series){ return function(){
 			self.nomore=true;
 			self.removeSeries(s, series);
@@ -4275,10 +4319,31 @@ STX.UI.Prototypes.Comparison.renderLegend=function(){
 	this.pickSwatchColor();
 };
 
+STX.UI.Prototypes.Comparison.updatePrices=function(){
+	var key=this.node.find("cq-comparison-key");
+	var stx=this.context.stx;
+	var q=stx.currentQuote();
+	for(var s in stx.chart.series){
+		var price=key.find('cq-comparison-item[cq-symbol="' + s + '"] cq-comparison-price');
+		if(price.length){
+			var oldPrice=parseFloat(price.text());
+			var newPrice=q[s];
+			price.text(stx.padOutPrice(newPrice));
+			if(typeof(price.attr("cq-animate"))!="undefined")
+				STX.UI.animatePrice(price, newPrice, oldPrice);
+		}
+	}
+};
+
+STX.UI.Prototypes.Comparison.startPriceTracker=function(){
+	var self=this;
+	this.addInjection("append", "createDataSet", function(){
+		self.updatePrices();
+	});
+};
+
 STX.UI.Prototypes.Comparison.setContext=function(context){
-	STX.UI.ContextTag.setContext.apply(this, arguments);
-	var node=$(this);
-	node.attr("cq-show","true");
+	this.node.attr("cq-show","true");
 	// if attribute cq-marker then detach and put ourselves in the chart holder
 	context.advertiseAs(this, "Comparison");
 	this.configureUI();
@@ -4288,10 +4353,13 @@ STX.UI.Prototypes.Comparison.setContext=function(context){
 		action: "callback",
 		value:function(){self.renderLegend();}
 	});
+	var frag=STX.UI.makeFromTemplate(this.template);
+	if(frag.find("cq-comparison-price")){
+		this.startPriceTracker();
+	}
 };
 
 STX.UI.Prototypes.Comparison.selectItem=function(context, obj){
-	var node=$(this);
 	var series=null;
 	var self=this;
 	function cb(err, series){
@@ -4302,7 +4370,7 @@ STX.UI.Prototypes.Comparison.selectItem=function(context, obj){
 		self.loading[series.parameters.symbolObject.symbol]=false;
 		self.renderLegend();
 	}
-	var swatch=node.find("cq-swatch");
+	var swatch=this.node.find("cq-swatch");
 	var color="auto";
 	if(swatch[0]) color=swatch[0].style.backgroundColor;
 	var stx=context.stx;
@@ -4323,7 +4391,7 @@ STX.UI.Prototypes.Comparison.selectItem=function(context, obj){
 };
 
 STX.UI.Prototypes.Comparison.configureUI=function(){
-	var node=$(this);
+	var node=this.node;
 	var addNew=node.find("cq-accept-btn");
 	this.template=node.find("*[cq-comparison-item]");
 	var swatchColors=node.find("cq-swatch").attr("cq-colors");
@@ -4366,7 +4434,6 @@ STX.UI.Prototypes.Lookup.attachedCallback=function(){
 };
 
 STX.UI.Prototypes.Lookup.setContext=function(context){
-	STX.UI.ContextTag.setContext.apply(this, arguments);
 	context.advertiseAs(this, "Lookup");
 	this.initialize();
 };
@@ -4580,8 +4647,7 @@ STX.UI.Prototypes.TFC.attachedCallback=function(){
 	this.attached=true;
 };
 
-STX.UI.Prototypes.TFC.setContext=function(context){
-	STX.UI.ContextTag.setContext.apply(this, arguments);	
+STX.UI.Prototypes.TFC.setContext=function(context){	
 	context.advertiseAs(this, "TFC");
 	this.initialize();
 };
@@ -4660,15 +4726,11 @@ STX.UI.Prototypes.ChartTitle=Object.create(STX.UI.ModalTag);
 
 STX.UI.Prototypes.ChartTitle.attachedCallback=function(){
     if(this.attached) return;
-    STX.UI.ContextTag.attachedCallback.apply(this);
+    STX.UI.ModalTag.attachedCallback.apply(this);
     this.attached=true;
 };
 
 STX.UI.Prototypes.ChartTitle.setContext=function(context){
-    STX.UI.ContextTag.setContext.apply(this, arguments);
-
-    this.node =$(this);
-    //this.context=context;
     context.advertiseAs(this, "Title");
     var self = this;
     this.context.observe({
@@ -4731,7 +4793,11 @@ STX.UI.Prototypes.ChartTitle.update=function(){
     var currentQuote=stx.currentQuote();
     currentPrice=currentQuote?currentQuote.Close:"";
     if(currentPriceDiv.length){
-        currentPriceDiv.text(currentPrice);
+		var oldPrice=parseFloat(currentPriceDiv.text());
+        currentPriceDiv.text(stx.padOutPrice(currentPrice));
+		if(typeof(currentPriceDiv.attr("cq-animate"))!="undefined"){
+			STX.UI.animatePrice(currentPriceDiv, currentPrice, oldPrice);
+		}
     }
 
     if(symbolDescriptionDiv.length){
@@ -4783,6 +4849,104 @@ STX.UI.Prototypes.ChartTitle.update=function(){
     }
 };
 
+
+/**
+ * Attribution UI element.  This will put a node inside a panel to attribute the data.
+ * Both the main chart panel (for quotes) and a study panel can use an attribution.
+ * @name STX.UI.Attribution
+ * @since TBD
+  <cq-attribution>
+	<template>
+		<cq-attrib-container>
+			<cq-attrib-source></cq-attrib-source>
+			<cq-attrib-quote-type></cq-attrib-quote-type>
+		</cq-attrib-container>
+	</template>
+  </cq-attribution>
+ *
+ */
+STX.UI.Prototypes.Attribution=Object.create(STX.UI.ModalTag);
+
+STX.UI.Prototypes.Attribution.insert=function(stx,panel){
+	var attrib=STX.UI.makeFromTemplate(this.template);
+	new STX.Marker({
+		stx: stx,
+	    node: attrib[0],
+	    xPositioner: "none",
+	    yPositioner: "none",
+	    label: "attribution",
+	    panelName: panel
+	});
+	return attrib;
+};
+
+STX.UI.Prototypes.Attribution.attachedCallback=function(){
+	if(this.attached) return;
+	STX.UI.ModalTag.attachedCallback.apply(this);
+	this.attached=true;
+};
+
+STX.UI.Prototypes.Attribution.setContext=function(context){
+	context.advertiseAs(this, "Attribution");
+	this.template=this.node.find("template");
+	var chartAttrib=this.insert(context.stx,"chart");
+	var self=this;
+	this.addInjection("append", "createDataSet", function(){
+		if(this.chart.attribution){
+			var source=self.messages.sources[this.chart.attribution.source];
+			var exchange=self.messages.exchanges[this.chart.attribution.exchange];
+			if(!source) source="";
+			if(!exchange) exchange="";
+			if(source+exchange!=chartAttrib.attr("lastAttrib")){
+				chartAttrib.find("cq-attrib-source").html(source);
+				chartAttrib.find("cq-attrib-quote-type").html(exchange);
+				STX.I18N.translateUI(chartAttrib[0]);
+				chartAttrib.attr("lastAttrib",source+exchange);
+			}
+		}
+		outer:
+		for(var study in this.layout.studies){
+			var type=this.layout.studies[study].type;
+			if(self.messages.sources[type]){
+				for(var i=0;i<this.markers.attribution.length;i++){
+					if(this.markers.attribution[i].params.panelName==this.layout.studies[study].panel) continue outer;
+				}
+				if(!this.panels[study]) continue;
+				var source=self.messages.sources[type];
+				var exchange=self.messages.exchanges[type];
+				if(!source) source="";
+				if(!exchange) exchange="";
+				var attrib=self.insert(this,study);
+				attrib.find("cq-attrib-source").html(source);
+				attrib.find("cq-attrib-quote-type").html(exchange);
+				STX.I18N.translateUI(attrib[0]);
+			}
+		}
+	});
+};
+
+/**
+ * Here is where the messages go.  This could be supplemented, overridden, etc. by the developer.
+ * The sources contain properties whose values which go into <cq-attrib-source>.
+ * The exchanges contain properties whose values which go into <cq-attrib-quote-type>.
+ * 
+ * For quotes, the sources would match the quote source.  For a study, it would match the study type.
+ * If there is no matching property, the appropriate component will have no text.
+ */
+STX.UI.Prototypes.Attribution.messages={
+	"sources":{
+		"demo": "Demo data.",
+		"xignite": "<a target=\"_blank\" href=\"https://www.xignite.com\">Market Data</a> by Xignite.",
+		"Twiggs": "Formula courtesy <a target=\"_blank\" href=\"https://www.incrediblecharts.com/indicators/twiggs_money_flow.php\">IncredibleCharts</a>."
+	},
+	"exchanges":{
+		"RANDOM": "Data is randomized.",
+		"REAL-TIME": "Data is real-time.",
+		"DELAYED": "Data delayed 15 min.",
+		"BATS": "BATS BZX real-time.",
+		"EOD": "End of day data."
+	}
+};
 
 /**
  * Displays an advertisement banner as a "marker" (inside the chart, use CSS to position absolutely against the chart panel).
@@ -4858,10 +5022,12 @@ STX.UI.Dialog=document.registerElement("cq-dialog", {prototype: STX.UI.Prototype
 STX.UI.SidePanel=document.registerElement("cq-side-panel", {prototype: STX.UI.Prototypes.SidePanel});
 STX.UI.ChartTitle=document.registerElement("cq-chart-title", {prototype: STX.UI.Prototypes.ChartTitle});
 
+STX.UI.Attribution=document.registerElement("cq-attribution", {prototype: STX.UI.Prototypes.Attribution});
 
 STX.UI.StudyDialog=document.registerElement("cq-study-dialog", {prototype: STX.UI.Prototypes.StudyDialog});
 STX.UI.StudyOutput=document.registerElement("cq-study-output", {prototype: STX.UI.Prototypes.StudyOutput});
 STX.UI.StudyInput=document.registerElement("cq-study-input", {prototype: STX.UI.Prototypes.StudyInput});
+STX.UI.StudyLegend=document.registerElement("cq-study-legend", {prototype: STX.UI.Prototypes.StudyLegend});
 
 STX.UI.Undo=document.registerElement("cq-undo", {prototype: STX.UI.Prototypes.Undo});
 STX.UI.Redo=document.registerElement("cq-redo", {prototype: STX.UI.Prototypes.Redo});
@@ -4870,6 +5036,8 @@ STX.UI.Comparison=document.registerElement("cq-comparison", {prototype: STX.UI.P
 STX.UI.SymbolLookup=document.registerElement("cq-lookup", {prototype: STX.UI.Prototypes.Lookup});
 
 STX.UI.Themes=document.registerElement("cq-themes", {prototype: STX.UI.Prototypes.Themes});
+STX.UI.ThemeDialog=document.registerElement("cq-theme-dialog", {prototype: STX.UI.Prototypes.ThemeDialog});
+STX.UI.ThemePiece=document.registerElement("cq-theme-piece", {prototype: STX.UI.Prototypes.ThemePiece});
 
 
 STX.UI.TFC=document.registerElement("cq-tfc", {prototype: STX.UI.Prototypes.TFC});

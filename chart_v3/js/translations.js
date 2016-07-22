@@ -187,7 +187,7 @@ On Bal Vol,مؤشر أحجام التداول المتراكمة,Sur le volume d
 Perf Idx,مؤشر الأداء,Indice de performance,Perf Idx,Teljesítm Idx,Perf Idx,Índice Perf,Индекс эффективности,Índ. de desempeño,能量潮,パフォーマンス指数
 Stch Mtm,مؤشر الزخم العشوائي,Dynamique stochastique,Stch Dyn,Stch Mtm,Stch Mtm,Stch Mtm,Стохастический темп,Mom. est.,性能指标,ストキャスティック・モメンタム
 %K Periods,فترات %K,%K Périodes,%K Zeiträume,%K Időszakok,%K Periodi,%K Períodos,Периоды %K,Períodos %K,随机动量,%K期間
-%K Smoothing Periods,فترات التنعيم %K,Périodes de lissage en % K,%K Glättungszeiträume,%K kiegyenlítő időszakok,%K Periodi Smoothing,%K períodos de suavização,Периоды сглаживания %K,Períodos de uniformidad %K,%K周期,%Kスムージング期間
+%K Smoothing Periods,فترات التنعيم %K,Périodes de lissage en % K,%K Glättungszeiträume,%K kiegyenlítő időszakok,%K periodi di lisciatura,%K períodos de suavização,Периоды сглаживания %K,Períodos de uniformidad %K,%K周期,%Kスムージング期間
 %K Double Smoothing Periods,فترات التنعيم المزدوجة %K,Périodes doubles de lissage en % K,%K Doppelte Glättungszeiträume,%K dupla kiegyenlítő időszakok,%K Periodi Double Smoothing,%K períodos de suavização dupla,Периоды двойного сглаживания %K,Períodos de uniformidad doble %K,%K平滑周期,%Kダブルスムージング期間
 %D Periods,فترات %D,%D Périodes,%d Zeiträume,%D időszakok,%D Periodi,%D períodos,Периоды %D,Períodos %D,%K双重平滑周期,%D期間
 %D Moving Average Type,نوع المتوسط المتحرك %D,Type de moyenne mobile en % D,%D Art des gleitenden Mittelwerts,%D mozgóátlag típus,%D Tipologia media mobile,%D tipo de média móvel,Тип скользящего среднего %D,Tipo de media móvil %D,%D周期,%D移動平均タイプ
@@ -195,7 +195,7 @@ Hist Vol,مؤشر التقلب التاريخي,Volatilité historique,Hist. Vol
 Days Per Year,يوم في السنة,Jours par an,Tage pro Jahr,Év per napok,giorni l'anno,Dias por ano,Дней в году,Días por año,历史波动,年間あたり日数
 Rel Vol,مؤشر التقلب النسبي,Volatilité relative,Rel Vol,Rel Vol,Rel Vol,Vol rel,Относительная волатильность,Vol. rel.,每年天数,相対取引高
 STD Period,الفترة المعيارية,Période type,STD Zeitraum,STD időszak,STD Period,Período STD,Базисный период,Período STD,相关成交量,STD期間
-Smoothing Period,فترة التنعيم,Période de lissage,Glättungszeitraum,Kiegyenlítő időszak,Smoothing Period,Período de nivelamento,Период сглаживания,Período de uniformidad,标准周期,スムージング期間
+Smoothing Period,فترة التنعيم,Période de lissage,Glättungszeitraum,Kiegyenlítő időszak,Periodo di lisciatura,Período de nivelamento,Период сглаживания,Período de uniformidad,标准周期,スムージング期間
 Pretty Good,جيد جدًا,Très bon,Ziemlich gut,Pretty Good,Pretty Good,Bastante bom,Pretty Good,Bastante bueno,平滑周期,プリティ・グッド
 Awesome,رائع,Génial,Fantastisch,Remek,Fantastico,Excelente,Великолепно,Fantástico,棒极了,オーサム
 Increasing Bar,شريط الصعود,Barre montante,Zunehmender Balken,Növekvő sáv,Barra crescente,Aumentando a barra,Столбец роста,Barra creciente,不错指标,増加バー
@@ -331,6 +331,7 @@ Comparison Symbol,رمز المقارنة,Comparaison des symboles,Vergleichssym
 Vchart,رسم تخطيطي مرئي,Vchart,Vchart,Vdiagram,grafico V,Vchart,Vchart,Gráfica V,成交量图,Vチャート
 Up Volume,حجم صاعد,Volume augmenté,Mehr Volumen,Felfelé haladó volumen,Up Volume,Subir volume,Объем повышения,Volumen arriba,上升成交量,アップ取引高
 Down Volume,حجم هابط,Volume baissé,Weniger Volume,Lefelé haladó volumen,Down Volume,Descer volume,объем понижения,Volumen abajo,下降成交量,ダウン取引高
+Use Volume,الاستفادة من حجم التداول,Utiliser Volume,Ausnutzen Volume,Hasznosítani volumen,Utilizzare Volume,Utilize volume,объем Использование,Utilizar Volumen,利用卷,ボリュームを利用し
 vol undr,حجم أدنى,vol undr,vol undr,vol undr,vol undr,vol abai,vol undr,Debajo vol.,成交量下置,取引高アンダー
 vol profile,ملف الحجم,profil du volume,vol Profil,vol profil,vol profile,Perfil do vol,профиль объемов,Perfil vol.,成交量特点,取引高プロフィール
 Bars Color,لون الأشرطة,Couleur des barres,Farbige Balken,Sávszínek,Colore delle barre,Cor das barras,Цвет столбцов,Color de las barras,柱线颜色,バーカラー
@@ -409,7 +410,7 @@ right-click to manage,انقر بزر الماوس الأيمن لحذف,Faites 
 Events,أحداث,Événement,Ereignisse,Események,Eventi,Eventos,События,Eventos,事件,イベント
 Neutral,محايد,Neutre,Neutral,Semleges,Neutro,Neutro,Нейтраль,Neutro,中性,中立
 PMOSignal,إشارة بي إم أو,Signal PMO,PMOSignal,PMO-jelzés,Segnale PMO,PMOSignal,PMOSignal,Señal PMO,PMO信号,PMOSignal
-Double Smoothing Period,فترات التنعيم المزدوجة %K,Période double de lissage,Doppelter Glättungszeitraum,Dupla kiegyenlítő időszak,Periodo Double Smoothing,Período de suavização dupla,Период двойного сглаживания,Período de uniformidad doble,双平滑期间,2重平滑期間
+Double Smoothing Period,فترات التنعيم المزدوجة %K,Période double de lissage,Doppelter Glättungszeitraum,Dupla kiegyenlítő időszak,Doppio periodi di lisciatura,Período de suavização dupla,Период двойного сглаживания,Período de uniformidad doble,双平滑期间,2重平滑期間
 Lightest Rate of Change Period,أخف فترة لنسبة التغير,Taux le plus léger de période de transition,Niedrigster Kurs des Änderungszeitraums,Az időszak amikor a legenyhébb a változás mértéke,Periodo con il tasso di variazione più leggero,Período de menor taxa de troca,Период легчайшей нормы изменений,Tasa más baja de periodo de cambio,变化率最小期间,変動期間の最低レート
 Lightest SMA Period,أخف فترة إس إم أيه,Période de moyenne mobile simple la plus légère,Niedrigster Kurs während des einfachen gleitenden Durchschnittszeitraums,Legenyhébb SMA-időszak,Periodo con la SMA più leggera,Período SMA mais leve,Период легчайшей простой скользящей средней,Periodo de SMA más bajo,最小SMA期间,最低SMA期間
 Light Rate of Change Period,أخف فترة لنسبة التغير,Taux léger de période de transition,Niedriger Kurs während des Änderungszeitraums,Időszak amikor enyhe a változás mértéke,Periodo con tasso di variazione leggero,Período de baixa taxa de troca,Период легкой нормы изменений,Tasa baja de periodo de cambio,变化率小期间,変動期間の低レート
@@ -468,6 +469,15 @@ Use the following link to share your chart:,استخدم الرابط التال
 Open shared chart in new window,افتح الرسم البياني الذي تم مشاركته في نافذة جديدة,Ouvrir le tableau partagé dans une nouvelle fenêtre,Geteilten Chart in neuem Fenster öffnen,Megosztott chart megnyitása új ablakban,Apri il grafico condiviso in una nuova finestra,Abrir o gráfico partilhado numa nova janela,Открыть опубликованный график в новом окне,Abrir la gráfica compartida en una nueva ventana,在新窗口中打开分享的图表,新しいウィンドウで共有チャートを開く
 New Theme Name:,اسم الموضوع الجديد:,Nouveau nom du thème :,Neuer Themenname:,Az új téma neve:,Nuovo nome del tema:,Novo nome do tema:,Название новой темы:,Nuevo nombre de tema:,新的主题名称：,新しいテーマ名：
 Symbol,الرمز,Symbole,Symbol,Szimbólum,Simbolo,Símbolo,Символ,Símbolo,用户名,シンボル
+Demo data.,.البيانات تجريبي,Les données de démonstration.,Demo-Daten.,Demo adatokat.,Dati demo.,Dados de demonstração.,Демо-данные.,Datos de demostración.,示范数据。,デモデータ。
+Market Data,بيانات السوق,Données du marché,Marktdaten,Market Data,Dati di mercato,Dados de mercado,Данные рынка,Datos del mercado,市场数据,市場データ
+ by Xignite., Xignite بواسطة, par Xignite., von Xignite., által Xignite., per Xignite., por Xignite., по Xignite., por Xignite.,由Xignite。,Xigniteによる。
+Formula courtesy ,صيغة بفضل ,Formule grâce à ,Formel dank ,Formula köszönhetően ,Formula grazie a ,Fórmula graças à ,Формула благодаря ,Fórmula gracias a ,公式感谢,式のおかげで
+Data is randomized.,.البيانات غير العشوائية,Les données sont randomisées.,Daten randomisiert.,Az adatok véletlen.,I dati è randomizzato.,Dados é aleatório.,Данные рандомизированных.,De datos es aleatorizado.,数据是随机的。,データがランダム化されます。
+Data is real-time.,.البيانات هو الوقت الحقيقي,Les données sont en temps réel.,Die Daten werden in Echtzeit.,Az adatok valós időben.,I dati sono in tempo reale.,Os dados estão em tempo real.,Данные в режиме реального времени.,Los datos es en tiempo real.,数据是实时的。,データはリアルタイムです。
+Data delayed 15 min.,.جميع البيانات متأخرة 15 دقيقة,Données retardées 15 min.,Daten verzögert 15 min.,Adat késleltetve 15 perc.,Dati ritardato 15 min.,Dados atrasado 15 min.,Данные с задержкой 15 мин.,Datos retrasó 15 minutos.,数据延迟15分钟。,データは15分遅れ。
+BATS BZX real-time.,.في الوقت الحقيقي BATS BZX,BATS BZX en temps réel.,BATS BZX Echtzeit .,BATS BZX valós időben.,BATS BZX in tempo reale.,BATS BZX em tempo real.,BATS BZX в режиме реального времени.,BATS BZX en tiempo real.,BATS BZX实时性。,BATSはリアルタイムBZX。
+End of day data.,.البيانات من نهاية اليوم,Les données de la fin de la journée.,Daten von dem Ende des Tages.,Az adatok a nap végén.,I dati della fine della giornata.,Os dados a partir do final do dia.,Данные полученные в конце рабочего дня.,Los datos de la final del día.,从一天结束的数据。,一日の終わりからのデータ。
 */});
 		
 		
@@ -872,6 +882,7 @@ Symbol,الرمز,Symbole,Symbol,Szimbólum,Simbolo,Símbolo,Символ,Símbo
 					"Tolerance Percentage":"",
 					"Twiggs":"",
 					"Up Volume":"",
+					"Use Volume":"",
 					"VT HZ Filter":"",
 					"Vol ROC":"",
 					"W MFI":"",
@@ -879,6 +890,7 @@ Symbol,الرمز,Symbole,Symbol,Szimbólum,Simbolo,Símbolo,Символ,Símbo
 					"RelVigSignal":"",
 					"Rel Vol":"",
 					"Smoothing Period":"",
+					"Double Smoothing Period":"",
 					"STD Period":"",
 					"MA Period":"",
 					"composite":"",
@@ -902,7 +914,16 @@ Symbol,الرمز,Symbole,Symbol,Szimbólum,Simbolo,Símbolo,Символ,Símbo
 					"Uptrend":"",
 					"Downtrend":"",
 					"Don't see your study below? Type in your search here.":"",
-					"Show All":""
+					"Show All":"",
+					"Demo data.":"",
+					"Market Data":"",
+					" by Xignite.":"",
+					"Formula courtesy ":"",
+					"Data is randomized.":"",
+					"Data is real-time.":"",
+					"Data delayed 15 min.":"",
+					"BATS BZX real-time.":"",
+					"End of day data.":""
 				}
 		};
 

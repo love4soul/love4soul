@@ -92,7 +92,7 @@
 		 * @memberOf STX.Studies
 		 */
 		STX.Studies.calculateVolume=function(stx, sd){
-			if(sd.name=="vchart"){
+			if(sd.name=="vchart" || sd.name=="volume"){
 				stx.setStyle("stx_volume_up","color",sd.outputs["Up Volume"]);
 				stx.setStyle("stx_volume_down","color",sd.outputs["Down Volume"]);
 			}else{
@@ -1066,6 +1066,8 @@
 
 			var quotes=sd.chart.scrubbed;
 			var period=sd.days;
+			var smoothing=parseInt(sd.inputs["Smoothing Period"],10);
+			if(!smoothing && smoothing!==0) smoothing=period;
 			var smoothTR=0;
 			var smoothPlusDM=0;
 			var smoothMinusDM=0;
@@ -1094,13 +1096,13 @@
 
 	    		quotes[i]["+DI " + sd.name]=plusDI;
 	    		quotes[i]["-DI " + sd.name]=minusDI;
-	    		if(sd.inputs.Series!==false){
-		    		if(i<2*period-1){
+	    		if(sd.inputs.Series!==false && smoothing){
+		    		if(i<period+smoothing-1){
 				    	runningDX+=DX;
-				    }else if(i==2*period-1){
-				    	quotes[i]["ADX " + sd.name]=runningDX/period;
+				    }else if(i==period+smoothing-1){
+				    	quotes[i]["ADX " + sd.name]=runningDX/smoothing;
 				    }else{
-				    	quotes[i]["ADX " + sd.name]=(quotes[i-1]["ADX " + sd.name]*(period-1) + DX)/period;
+				    	quotes[i]["ADX " + sd.name]=(quotes[i-1]["ADX " + sd.name]*(smoothing-1) + DX)/smoothing;
 				    }
 	    		}
 		    }
@@ -1759,6 +1761,7 @@
 		    	}else if(quote.Close<yClose){
 		    		todayAD=quote.Close-Math.max(quote.High,yClose);
 		    	}
+		    	if(sd.inputs["Use Volume"]) todayAD*=quote.Volume;
 	        	total+=todayAD;
 	        	quote["Result " + sd.name]=total;
 		    }
@@ -2380,7 +2383,7 @@
 				"name": "ADX/DMS",
 				"calculateFN": STX.Studies.calculateADX,
 				"seriesFN": STX.Studies.displayADX,
-				"inputs": {"Period":14, "Series":true, "Shading":false, "Histogram":false},
+				"inputs": {"Period":14, "Smoothing Period":14, "Series":true, "Shading":false, "Histogram":false},
 				"outputs": {"+DI":"#00FF00", "-DI":"#FF0000", "ADX":"auto", "Positive Bar":"#00DD00", "Negative Bar":"#FF0000"}
 			},
 			"Directional": {
@@ -2561,13 +2564,14 @@
 			"W Acc Dist": {
 				"name": "Williams Accumulation/Distribution",
 				"calculateFN": STX.Studies.calculateAccumulationDistribution,
-				"inputs":{}
+				"inputs":{"Use Volume":false}
 			},
 			"vchart": {
 				"name": "Volume Chart",
 				"display": "Volume",
 			    "range": "0 to max",
-			    "yAxis": {"ground":true, "initialMarginTop":0},
+			    //"yAxis": {"initialMarginBottom":10,"initialMarginTop":0}, // use this one to see the bottom value on axis.
+			    "yAxis": {"ground":true,"initialMarginTop":0},
 			    "seriesFN": STX.Studies.createVolumeChart,
 			    "calculateFN": STX.Studies.calculateVolume,
 			    "inputs": {},
@@ -6456,7 +6460,7 @@
 
 	{
 		if ( typeof define === "function" && define.amd ) {
-			define( ["stxThirdParty","stxKernelOs"], function(_stxThirdParty,_stxKernel) { return _stxLibrary_js(_stxThirdParty,_stxKernel); } );
+			define( ["stxThirdParty", "stxKernelOs"], function(_stxThirdParty, _stxKernel) { return _stxLibrary_js(_stxThirdParty,_stxKernel); } );
 		}else{
 			var _stxThirdParty={};
 			if(typeof(window.STXThirdParty)!="undefined") _stxThirdParty=window.STXThirdParty;

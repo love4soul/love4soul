@@ -138,8 +138,8 @@
 		    if (color.substr(0, 1) === '#') {
 		        return color;
 		    }
-		    var digits = /(.*?)rgb\((\d+), (\d+), (\d+)\)/.exec(color);
-		    if(!digits) digits=/(.*?)rgba\((\d+), (\d+), (\d+),.*\)/.exec(color);
+		    var digits = /(.*?)rgb\((\d+), ?(\d+), ?(\d+)\)/.exec(color);
+		    if(!digits) digits=/(.*?)rgba\((\d+), ?(\d+), ?(\d+),.*\)/.exec(color);
 	    	function toHex(color) {
 	    	  var ta=$$("color_converter");
     		  if(!ta){
@@ -153,7 +153,7 @@
     		  var value;
     		  if(!STX.isIE8){
     		  	value = getComputedStyle(ta).getPropertyValue("color");
-    		  	digits = /(.*?)rgb\((\d+), (\d+), (\d+)\)/.exec(value);
+    		  	digits = /(.*?)rgb\((\d+), ?(\d+), ?(\d+)\)/.exec(value);
     		  	if(digits) return STX.colorToHex(value);
 	    		else if (value.substr(0, 1) === '#') return value;
     		  	else return color;
@@ -175,12 +175,20 @@
 		};
 
 		STX.hexToRgba=function(hex,opacity){
+			if(!hex || hex=="transparent") hex="rgba(0,0,0,0)";
 		    if (hex.substr(0, 4) === 'rgba') {
-		        return hex;
+				var digits=/(.*?)rgba\((\d+), ?(\d+), ?(\d+), ?(\d*\.?\d*)\)/.exec(hex);
+				var a=digits[5];
+				if(opacity || opacity===0) a=opacity;
+				if(a>1) a=a/100;
+				return "rgba(" + digits[2] + "," + digits[3] + "," + digits[4] + "," + a + ")";
 		    }
 		    else if (hex.substr(0, 3) === 'rgb') {
 		    	hex=STX.colorToHex(hex);
 		    }
+		    if(!opacity && opacity!==0) opacity=100; // default to full opacity
+		    if(opacity<=1) opacity=opacity*100; // handle decimal opacity (css style)
+
 		    hex = hex.replace('#','');
 		    r = parseInt(hex.substring(0,2), 16);
 		    g = parseInt(hex.substring(2,4), 16);
@@ -216,7 +224,7 @@
 		STX.isTransparent=function(color){
 			if(!color) return false;
 			if(color=="transparent") return true;
-			var digits=/(.*?)rgba\((\d+), (\d+), (\d+), (.*)\)/.exec(color);
+			var digits=/(.*?)rgba\((\d+), ?(\d+), ?(\d+), ?(\d*\.?\d*)\)/.exec(color);
 			if(digits===null) return false;
 			if(parseFloat(digits[5])===0) return true;
 			return false;
@@ -272,6 +280,37 @@
 			 computedV = maxRGB;
 			 return [computedH,computedS,computedV];
 		};
+
+		STX.hsl=function(color){
+			var hex=STX.colorToHex(color);
+			if(hex.substr(0,1)==="#") hex=hex.slice(1);
+			// fill with leading 0 if not 6 digits.
+			for(var i=hex.length;i<6;i++){
+				hex="0"+hex;
+			}
+			var r=parseInt(hex.slice(0,2),16);
+			var g=parseInt(hex.slice(2,4),16);
+			var b=parseInt(hex.slice(4,6),16);
+
+			r /= 255, g /= 255, b /= 255;
+			var max = Math.max(r, g, b), min = Math.min(r, g, b);
+			var h, s, l = (max + min) / 2;
+
+			if(max == min){
+				h = s = 0; // achromatic
+			}else{
+				var d = max - min;
+				s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+				switch(max){
+					case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+					case g: h = (b - r) / d + 2; break;
+					case b: h = (r - g) / d + 4; break;
+				}
+				h /= 6;
+			}
+
+			return [h, s, l];
+		}
 
 		STX.dayOfYear= function(dt){
 		    var j1=new Date(dt);
@@ -967,13 +1006,17 @@
 		};
 
 		/**
-		 * Converts a string form date to mm/dd/yyyy format
-		 * @param  {string} d Date in string format such as YYYY-MM-DD
+		 * Converts a JavaScript Date or string form date to mm/dd/yyyy format
+		 * @param  {string} d Date in JavaScript Date or string format such as YYYY-MM-DD
 		 * @return {string}   Date in mm/dd/yyyy format
 		 * @memberOf  STX
+		 * @since TBD
 		 */
-		STX.mmddyyyy=function(d){
-			var dt=STX.strToDate(d);
+		STX.mmddyyyy=function(dt){
+			if(typeof(dt) === 'string'){
+				dt = STX.strToDate(dt);
+			}
+			
 			var m=dt.getMonth()+1;
 			if(m<10) m="0" + m;
 			d=dt.getDate();
@@ -3314,31 +3357,36 @@
 		 *  nodes that contain that word. This can then be used for translation.
 		 *  Text nodes and placeholders which are found in the document tree will be wrapped by this function
 		 *  within a <translate> tag for easy translation back and forth.
+		 * @param  {HTMLElement} [root] Optional root for the TreeWalker.  If omitted, document.body assumed.
+		 * @return {object}      A word list containing unique words.
 		 *  @memberOf  STX.I18N
 		 */
-		STX.I18N.findAllTextNodes=function(){
+		STX.I18N.findAllTextNodes=function(root){
+			if(!root) root=document.body;
 		    // Get all the words from the placeholders
 		    // We'll create text nodes for them and stash them in a hidden div so we can access them in the future
-			if(!$$("stashedTextNodes")){
-				stashedTextNodes=document.createElement("div");
-				stashedTextNodes.id="stashedTextNodes";
-				stashedTextNodes.style.display="none";
-				document.body.appendChild(stashedTextNodes);
-
-				var fields=document.querySelectorAll("input,textarea,.editable_content");
-				for(var f=0;f<fields.length;f++){
-					var placeHolder=fields[f].getAttribute("placeholder");
-					if(placeHolder){
-	        			var wrapper=stashedTextNodes.appendChild(document.createElement("translate"));
-	        			wrapper.setAttribute("original",placeHolder);
-	        			wrapper.placeholderFor=fields[f];
-	        			wrapper.appendChild(document.createTextNode(placeHolder));
+			if(root==document.body){
+				if(!$$("stashedTextNodes")){
+					stashedTextNodes=document.createElement("div");
+					stashedTextNodes.id="stashedTextNodes";
+					stashedTextNodes.style.display="none";
+					document.body.appendChild(stashedTextNodes);
+	
+					var fields=document.querySelectorAll("input,textarea,.editable_content");
+					for(var f=0;f<fields.length;f++){
+						var placeHolder=fields[f].getAttribute("placeholder");
+						if(placeHolder){
+		        			var wrapper=stashedTextNodes.appendChild(document.createElement("translate"));
+		        			wrapper.setAttribute("original",placeHolder);
+		        			wrapper.placeholderFor=fields[f];
+		        			wrapper.appendChild(document.createTextNode(placeHolder));
+						}
 					}
 				}
 			}
 
 			var walker = document.createTreeWalker(
-		        document.body,
+		        root,
 		        NodeFilter.SHOW_TEXT,
 		        null,
 		        false
@@ -3365,24 +3413,26 @@
 				}
 		        node = walker.nextNode();
 		    }
-		    // For missing word list collation only:
-		    // Get all the words from the study library that are used to populate the study dialogs.
-		    // These will have an empty array since they aren't associated with any nodes
-		    if(STX.Studies.studyLibrary){
-		    	for(var study in STX.Studies.studyLibrary){
-		        	if(wordList[study]===null) wordList[study]=[];
-		        	var s=STX.Studies.studyLibrary[study];
-		        	if(s.inputs){
-		        		for(var input in s.inputs){
-		                	if(!wordList[input]) wordList[input]=[];
-		        		}
-		        	}
-		        	if(s.outputs){
-		        		for(var output in s.outputs){
-		                	if(!wordList[output]) wordList[output]=[];
-		        		}
-		        	}
-		    	}
+		    if(root==document.body){
+			    // For missing word list collation only:
+			    // Get all the words from the study library that are used to populate the study dialogs.
+			    // These will have an empty array since they aren't associated with any nodes
+			    if(STX.Studies.studyLibrary){
+			    	for(var study in STX.Studies.studyLibrary){
+			        	if(wordList[study]===null) wordList[study]=[];
+			        	var s=STX.Studies.studyLibrary[study];
+			        	if(s.inputs){
+			        		for(var input in s.inputs){
+			                	if(!wordList[input]) wordList[input]=[];
+			        		}
+			        	}
+			        	if(s.outputs){
+			        		for(var output in s.outputs){
+			                	if(!wordList[output]) wordList[output]=[];
+			        		}
+			        	}
+			    	}
+			    }
 		    }
 			return wordList;
 		};
@@ -3421,12 +3471,13 @@
 		/**
 		 * Passes through the UI (DOM elements) and translates all of the text for the given language.
 		 * @param {string} [language] Optional language. Defaults to STX.I18N.language.
+		 * @param  {HTMLElement} [root] Optional root for the TreeWalker.  If omitted, document.body assumed.
 		 * @memberOf  STX.I18N
 		 */
-		STX.I18N.translateUI=function(language){
+		STX.I18N.translateUI=function(language, root){
 			if(!STX.I18N.wordLists) return;
 			if(!language) language=STX.I18N.language;
-			var wordsInUI=STX.I18N.findAllTextNodes();
+			var wordsInUI=STX.I18N.findAllTextNodes(root);
 			var languageWordList=STX.I18N.wordLists[language];
 			if(!languageWordList) return;
 			for(var word in wordsInUI){
@@ -3820,14 +3871,10 @@
 		    this.enabled_by_default = false;
 		    
 		    //needed to run unit tests otherwise should do nothing
-		    if (typeof market_definition !== 'undefined') {
+		    if ( typeof market_definition != 'undefined' && market_definition && market_definition != {}) {
 		    	if (market_definition.market_definition) {
 			    	market_definition = market_definition.market_definition;
 		    	}
-		    }
-		
-		    if ( typeof market_definition != 'undefined' && market_definition && market_definition != {}) {
-		
 		        if (market_definition.rules) {
 		            this.rules = market_definition.rules;
 		        }
@@ -4445,7 +4492,7 @@
 		 * @return {Object} String or null
 		 */
 		STX.Market.prototype.getSession = function(date) {
-			if (this._wasOpenIntraDay(date)) {
+			if (this._wasOpenIntraDay(date) && this.zseg_match) {
 				return this.zseg_match.name;
 			}
 			return null;
@@ -4510,7 +4557,7 @@
 		 * 
 		 * See the following convenience functions: {@link STXChart#getNextInterval} and  {@link STXChart#standardMarketIterator}
 		 *
-		 * @param {Object} parms Parameters used to initalize the Market object.
+		 * @param {Object} parms Parameters used to initialize the Market object.
 		 * @param {string} [parms.interval] A valid interval as required by {@link STXChart#setPeriodicityV2}. Default is 1 (minute).
 		 * @param {Integer} [parms.periodicity] A valid periodicity as required by {@link STXChart#setPeriodicityV2}. Default is 1.
 		 * @param {String} [parms.timeUnit] A valid timeUnit as required by {@link STXChart#setPeriodicityV2}. Default is "minute"
@@ -5791,6 +5838,135 @@
 				}
 			}
 			return id;
+		};
+
+		/**
+		 * Generates an object that can be used to create a theme dialog. The initial
+		 * values contain the existing values in the current chart.
+		 * Simply have your dialog modify these values and then call the method update();
+		 *
+		 * Note that the chart has many granular customizations beyond what this theme
+		 * helper produces. These can be manipulated in the CSS. This helper simplifies
+		 * and consolidates into a manageable dialog.
+		 * 
+		 * @param {Object} params Parameters
+		 * @param {STX.STXChart} params.stx A chart object
+		 * @example
+		 * var helper=new STX.ThemeHelper({stx:stx});
+		 * console.log(helper.settings);
+		 * helper.settings.chart["Grid Lines"].color="rgba(255,0,0,.5)";
+		 * helper.update();
+		 */
+		STX.ThemeHelper=function(params){
+			this.params=params;
+			var stx=params.stx;
+			var backgroundColor="#FFFFFF";
+			if(stx.chart.container){
+				backgroundColor=getComputedStyle(stx.chart.container)["backgroundColor"];
+				if(STX.isTransparent(backgroundColor)) backgroundColor=stx.containerColor;
+			}
+			this.settings.chart.Background.color=STX.hexToRgba(backgroundColor);
+			this.settings.chart["Grid Lines"].color=STX.hexToRgba(stx.canvasStyle("stx_grid").color);
+			this.settings.chart["Grid Dividers"].color=STX.hexToRgba(stx.canvasStyle("stx_grid_dark").color);
+			this.settings.chart["Axis Text"].color=STX.hexToRgba(stx.canvasStyle("stx_xaxis").color);
+
+			this.settings.chartTypes["Candle/Bar"].up.color=STX.hexToRgba(stx.canvasStyle("stx_candle_up").color);
+			
+			this.settings.chartTypes["Candle/Bar"].down.color=STX.hexToRgba(stx.canvasStyle("stx_candle_down").color);
+			this.settings.chartTypes["Candle/Bar"].up.wick=STX.hexToRgba(stx.canvasStyle("stx_candle_shadow_up").color);
+			this.settings.chartTypes["Candle/Bar"].down.wick=STX.hexToRgba(stx.canvasStyle("stx_candle_shadow_down").color);
+			this.settings.chartTypes["Candle/Bar"].up.border=STX.hexToRgba(stx.canvasStyle("stx_candle_up").borderLeftColor);
+			this.settings.chartTypes["Candle/Bar"].down.border=STX.hexToRgba(stx.canvasStyle("stx_candle_down").borderLeftColor);
+			if(STX.isTransparent(stx.canvasStyle("stx_candle_up").borderLeftColor)) this.settings.chartTypes["Candle/Bar"].up.border=null;
+			if(STX.isTransparent(stx.canvasStyle("stx_candle_down").borderLeftColor)) this.settings.chartTypes["Candle/Bar"].down.border=null;
+
+			this.settings.chartTypes["Line"].color=STX.hexToRgba(stx.canvasStyle("stx_line_chart").color);
+
+			this.settings.chartTypes["Mountain"].color=STX.hexToRgba(stx.canvasStyle("stx_mountain_chart").backgroundColor);
+		};
+
+		STX.ThemeHelper.prototype.settings={
+			"chart":{
+				"Background":{
+					"color":null
+				},
+				"Grid Lines":{
+					"color":null
+				},
+				"Grid Dividers":{
+					"color":null
+				},
+				"Axis Text":{
+					"color":null
+				}
+			},
+			"chartTypes":{
+				"Candle/Bar":{
+					"up":{
+						"color":null,
+						"wick":null,
+						"border":null
+					},
+					"down":{
+						"color":null,
+						"wick":null,
+						"border":null
+					}
+				},
+				"Line":{
+					"color":null
+				},
+				"Mountain":{
+					"color":null
+				}
+			}
+		};
+
+		/**
+		 * Update the current theme
+		 */
+		STX.ThemeHelper.prototype.update=function(){
+			var stx=this.params.stx;
+			var classMapping={
+				stx_candle_up: {stx_candle_up:true, stx_bar_up:true, stx_hollow_candle_up:true, stx_line_up:true, stx_baseline_up:true},
+				stx_candle_down: {stx_candle_down:true, stx_bar_down:true, stx_hollow_candle_down:true ,stx_line_down:true, stx_baseline_down:true},
+				stx_shadow_up: {stx_candle_shadow_up:true},
+				stx_shadow_down: {stx_candle_shadow_down:true},
+				stx_line_chart: {stx_bar_chart:true, stx_line_chart:true},
+				stx_grid: {stx_grid:true, stx_grid_border: true},
+				stx_grid_dark: {stx_grid_dark:true},
+				stx_xaxis: {stx_xaxis_dark:true, stx_xaxis:true, stx_yaxis:true, stx_yaxis_dark:true},
+				stx_mountain_chart: {stx_mountain_chart:true},
+				stx_market_session: {stx_market_session:true}
+			};
+
+			stx.chart.container.style.backgroundColor=this.settings.chart.Background.color;
+
+			function setStyle(style, field, value){
+				var styles=classMapping[style];
+				for(var s in styles){
+					stxx.setStyle(s, field, value);
+				}
+			}
+			setStyle("stx_grid","color", this.settings.chart["Grid Lines"].color);
+			setStyle("stx_grid_dark","color", this.settings.chart["Grid Dividers"].color);
+			setStyle("stx_xaxis","color",this.settings.chart["Axis Text"].color);
+
+			setStyle("stx_candle_up","color",this.settings.chartTypes["Candle/Bar"].up.color);
+			setStyle("stx_candle_down","color",this.settings.chartTypes["Candle/Bar"].down.color);
+			setStyle("stx_shadow_up","color",this.settings.chartTypes["Candle/Bar"].up.wick);
+			setStyle("stx_shadow_down","color",this.settings.chartTypes["Candle/Bar"].down.wick);
+
+			// Only apply borders to candle, not the other types
+			stxx.setStyle("stx_candle_up", "borderLeftColor", this.settings.chartTypes["Candle/Bar"].up.border);
+			stxx.setStyle("stx_candle_down", "borderLeftColor", this.settings.chartTypes["Candle/Bar"].down.border);
+
+			setStyle("stx_line_chart","color",this.settings.chartTypes["Line"].color);
+
+			stxx.setStyle("stx_mountain_chart","borderTopColor",this.settings.chartTypes["Mountain"].color);
+			stxx.setStyle("stx_mountain_chart","backgroundColor",STX.hexToRgba(this.settings.chartTypes["Mountain"].color,.8));
+			stxx.setStyle("stx_mountain_chart","color",STX.hexToRgba(this.settings.chartTypes["Mountain"].color,.1));
+			stx.draw();
 		};
 
 		/**
@@ -8492,7 +8668,8 @@
 		};
 
 		/**
-		 * Convenience function to destruct a chart, eliminating all references and dependencies, and optionally its containing DOM element
+		 * Convenience function to destruct a chart window and related GUI ({@link STX.ThemeManager}, {@link STX.MenuManager}), eliminating all references and dependencies, and optionally its containing DOM element.
+		 * <BR> Please note that this call will destroy the menu manager and theme manager even if multiple charts are registered to them, in which case you must manually call the destroy() method for the remaining charts.
 		 * @param {STXChart} stx The chart object to destroy
 		 * @param {string} excludedSelector If passed then any top level object within chartContainer which matches this selector will not be deleted (and neither will the wrapper)
 		 * @since 07/01/2015
@@ -8505,6 +8682,9 @@
 		    		break;
 		    	}
 		    }
+		    
+		    // to do:
+		    // remove all stx stored in STX.MenuManager.registeredCharts insted and and remove the stx argument so the signature is STX.destroy=function(excludedSelector)
 		    stx.styles={};
 		    stx.destroy();
 		    stx=null;
@@ -8548,7 +8728,8 @@
 		STX.MenuManager.stack=[];
 
 		/**
-		 * Clears out the MenuManager, eliminating all stxx references
+		 * Clears out the MenuManager, eliminating all stxx references.
+		 * To destroy the complete chart and related UI use {@link STX.destroy}
 		 * @memberOf STX.MenuManager
 		 */
 		STX.MenuManager.destroy=function(){
@@ -8945,7 +9126,8 @@
 		};
 
 		/**
-		 * Clears out the ThemeManager, eliminating all references to stx objects
+		 * Clears out the ThemeManager, eliminating all references to stx objects.
+		 * To destroy the complete chart and related UI use {@link STX.destroy}
 		 * @memberOf STX.ThemeManager
 		 */
 		STX.ThemeManager.destroy=function(){
@@ -9079,6 +9261,8 @@
 
 		/**
 		 * Convert colors from an existing chart into a theme object
+		 * @param {object} stx The chart object
+		 * @return {Object} The theme object 
 		 * @memberOf STX.ThemeManager
 		 */
 		STX.ThemeManager.createTheme=function(stx){
@@ -9108,6 +9292,8 @@
 		/**
 		 * Save a theme by name. Optional callback function when finished of fc(str) where str is a stringified version of the themes
 		 * that can be used for saving to a server or to local storage
+		 * @param {string} name The name of the theme
+		 * @param {object} stx The chart object
 		 * @memberOf STX.ThemeManager
 		 */
 		STX.ThemeManager.saveTheme=function(name, stx){
@@ -9120,6 +9306,8 @@
 
 		/**
 		 * Delete a custom theme by name.
+		 * @param {object} stx The chart object
+		 * @param {string} theme The name of the theme
 		 * @memberOf STX.ThemeManager
 		 */
 		STX.ThemeManager.deleteTheme=function(stx, theme){
@@ -10075,6 +10263,7 @@
 		/**
 		 * Initializes the drawing toolbar. It finds the toolbar through class stx-toolbar. Be sure to copy that HTML verbatim into your project
 		 * if you aren't using the demo as a starting point. Call this function when you initialize your UI.
+		 * Automatically called when a `new STX.DrawingToolbar(htmlElement, stx, callback);` is instantiated.
 		 * @param {HTMLElement} htmlElement The toolbar htmlElement
 		 * @memberOf STX.DrawingToolbar
 		 */
@@ -10460,7 +10649,7 @@
 		STX.YEAR=365*STX.DAY;
 		STX.DECADE=10*STX.YEAR;
 
-		STXChart.version=["Version 2016-06-21"];
+		STXChart.version=["Version 2016-07-16"];
 
 		STXChart.drawingLine=false; // Toggles to true when a drawing is initiated
 		STXChart.resizingPanel=null; // Toggles to true when a panel is being resized
@@ -11202,9 +11391,10 @@
 			adjustTimeZone: true,
 		    /**
 		     * Ideal space between x-axis labels in pixels.
-		     * If null then the chart will attempt a tick size in proportion to the chart.
+		     * If null then the chart will attempt a tick size and time unit in proportion to the chart.
 		     * Please note that if `stxx.chart.yAxis.goldenRatioYAxis` is set to `true`, this setting will also affect the spacing between y-axis labels.
 		     * Please note that this setting will be overwritten at rendering time if too small to prevent labels from covering each other.
+		     * Not applicable if {@link STXChart.XAxis#timeUnit} is manually set. 
 		     * See {@tutorial Custom X-axis} for additional details.
 		     * @type number
 		     * @default
@@ -11484,15 +11674,18 @@
 		};
 
 		/**
-		 * Basic Chart object. Multiple STXChart (stx) objects can exist on an HTML document.
-		 * charts is a member object that can contain multiple charts (in separate panels).
-		 * For backward compatibility, there is always one chart called stxx.chart which points to the first chart in the charts object. Users
-		 * can feel free to reference this chart directly if they only ever need to support a single chart panel.
-		 * "chart" contains some variables that are applicable to all of the charts on the screen (i.e. canvas, canvasWidth, canvasHeight, etc)
+		 * This is the constructor that instantiates the basic chart object and links it to its DOM container. 
+		 * Before any chart operations can be performed this constructor must be called. 
+		 * 
+		 * Multiple STXChart (stx) objects can exist on an HTML document.
+		 * `charts` is a member object that can contain multiple charts (in separate panels).
+		 * For backward compatibility, there is always one chart called `stxx.chart` which points to the first chart in the `charts` object. 
+		 * Users can feel free to reference this chart directly if they only ever need to support a single chart panel.
+		 * `chart` contains some variables that are applicable to all of the charts on the screen (i.e. canvas, canvasWidth, canvasHeight, etc)
 		 *
 		 * Each "chart" contains a unique set of data. In theory each chart supports a separate scroll position but this is not implemented.
 		 * @constructor
-		 * @param {Object} [config] Configuration object. Any field or object within the config parameter will be preset or added to the STXChart object itself.
+		 * @param {Object} config Configuration object. Any field or object within the config parameter will be preset or added to the STXChart object itself.
 		 * Generally you will want to at least include {container: <your div element>}.
 		 * @name  STXChart
 		 * @example
@@ -12316,8 +12509,8 @@
 			 * Display the xAxis below all panels.
 			 * @type boolean
 			 * @default
-			 * @alias layout.xAxisAsFooter
-			 * @memberof! 	STXChart.prototype
+			 * @alias xAxisAsFooter
+			 * @memberof 	STXChart.prototype
 			 * @since 05-2016-10
 			 */
 			this.xAxisAsFooter = false;
@@ -12565,7 +12758,7 @@
 			 * @type Function
 			 * @alias callbacks.symbolChange
 			 * @memberOf! STXChart#
-			 * @since TBD
+			 * @since 2016-06-21
 			 */
 			symbolChange: null,
 
@@ -12846,70 +13039,7 @@
 		 * <br>- 2015-11-1 `paras.symbolObject` is now available
 		 */
 		STX.QuoteFeed.prototype.fetch=function(params, cb){
-
-			// This is an outline for how to implement fetch in your custom feed
-			if(params.startDate && params.endDate){
-				// This means the chart is asking for a specific data range,
-				// probably to back fill MaterData for a comparison symbol for an existing chart.
-				// You must provide data for the entire range or a gap will be produced.
-				//
-				// Put your code here to fetch and format the response according to the specs and return it in the callback.
-				//  cb({quotes:yourData}); // no need to set moreAvailable for a range.
-				// });
-
-			} else if(params.startDate){
-				// This means the chart is asking for refresh (stream) of most recent data according to the interval you have specified in behavior.refreshInterval when you attached the quote feed (attachQuoteFeed).
-				// If you don't support streaming then just do nothing and return.
-				// Otheriwse fetch your data, probably using Ajax, and call the callback with your data when it comes in. See STX.QuoteFeed.Demo below for an actual implementation.
-				// STX.postAjax(url, null, function(status, response){
-				//	if(status!=200){
-				//		cb({error:status});	// something went wrong, use the callback functin to return your error
-				//		return;
-				//	}
-				//  Put your code here to format the response according to the specs and return it in the callback.
-				//  cb({quotes:yourData}); // no need to set moreAvailable for a refresh.
-				// });
-
-			}else if(params.endDate){
-				// This means the user has scrolled past the end of the chart. The chart needs older data, if it's available.
-				// If you don't support pagination just return and do nothing.
-				// Otheriwse fetch your data, probably using Ajax, and call the callback with your data when it comes in. See STX.QuoteFeed.Demo below for an actual implementation.
-				// STX.postAjax(url, null, function(status, response){
-				//	if(status!=200){
-				//		cb({error:status});	// something went wrong, use the callback functin to return your error
-				//		return;
-				//	}
-				//  Put your code here to format the response according to the specs and return it in the callback.
-				//  cb({quotes:yourData, moreAvailable:false}); // set moreAvailable to true or false if you know that more, older, data is available for when the user scrolls back in time.
-				// });
-
-			}else{
-				// The chart needs an initial load. params.tick tells you how many bars are needed to fill up the chart
-				// but you can return as many as you want. We recommend always returning at least 1,000 bars on initial load
-				//
-				// Fetch your data, probably using Ajax, and call the callback with your data when it comes in. See STX.QuoteFeed.Demo below for an actual implementation.
-				// STX.postAjax(url, null, function(status, response){
-				//	if(status!=200){
-				//		cb({error:status});	// something went wrong, use the callback function to return your error
-				//		return;
-				//	}
-				//  Put your code here to format the response according to the specs and return it in the callback.
-				//	Exanple code:
-				//	var quotes=formatQuotes(response);
-				//	var newQuotes=[];
-				//	for(var i=0;i<quotes.length;i++){
-				//		newQuotes[i]={};
-				//		newQuotes[i].Date=quotes[i][0]; // Or set newQuotes[i].DT if you have a JS Date
-				//		newQuotes[i].Open=quotes[i][1];
-				//		newQuotes[i].High=quotes[i][2];
-				//		newQuotes[i].Low=quotes[i][3];
-				//		newQuotes[i].Close=quotes[i][4];
-				//		newQuotes[i].Volume=quotes[i][5];
-				//		newQuotes[i].Adj_Close=quotes[i][6];
-				//	}
-				//  cb({quotes:newQuotes, moreAvailable:false}); // set moreAvailable to true or false if you know that more, older, data is available for when the user scrolls back in time.
-				// });
-			}
+			console.log("You must implement STX.QuoteFeed.[yourfeedname].prototype.fetch()");
 		};
 
 		/**
@@ -13020,6 +13150,9 @@
 
 				need.interval=interval;
 				need.period=1;
+				delete need.periodicity; // to avoid confusion
+				delete need.timeUnit; // to avoid confusion
+				delete need.setSpan; // to avoid confusion
 				need.match=false;
 
 				if(!isNaN(need.interval)){	// normalize numeric intervals into "minute" form
@@ -13079,6 +13212,128 @@
 		STX.QuoteFeed.Subscriptions.prototype.fetchFromSource=function(params, cb){
 			console.log("Please provide implementation of fetchFromSource");
 		};
+
+		/* Copy and paste STX.QuoteFeed.CopyAndPasteMe. Change "CopyAndPasteMe" to the name
+		of your quote service. Then implement the fetch() method based on the included comments */
+
+		STX.QuoteFeed.CopyAndPasteMe=function(){};
+
+		STX.QuoteFeed.CopyAndPasteMe.stxInheritsFrom(STX.QuoteFeed.Subscriptions);
+
+		STX.QuoteFeed.CopyAndPasteMe.prototype.fetchFromSource=function(params, cb){
+
+			// This is an outline for how to implement fetch in your custom feed. Cut and paste
+			// this code and then implement. Leave any portion blank that you cannot support.
+			// 
+			// Most quote feeds will support startDate and endDate. This will be enough to implement
+			// charts. It is also possible to implement charts with quote feeds that support other
+			// request parameters but you may need to do some manipulation within this code to
+			// accomplish this.
+			// 
+			// See STX.QuoteFeed.Demo or STX.QuoteFeed.EndOfDay below for actual implementations.
+
+			if(params.startDate && params.endDate){
+				// If you receive both a startDate and endDate then the chart is asking for a
+				// specific data range. This usually happens when a comparison symbol has been
+				// added to the chart. You'll want the comparison symbol to show up on all the same
+				// bars on the screen.
+				// 
+				// You should return data for the entire range, otherwise you could get a gap of data on the screen.
+			} else if(params.startDate){
+				// This means the chart is asking for a refresh of most recent data.
+				// (This is streaming by "polling". For actual push based streaming see {@link STXChart#streamTrade} and {@link STXChart.appendMasterData}.
+				// 
+				// The chart will call this every X seconds based on what you have specified in behavior.refreshInterval
+				// when you initially attached the quote feed to stxx (attachQuoteFeed).
+				// 
+				// If you don't support polling then just do nothing and return.
+				// Otherwise fetch your data, probably using Ajax, and call the cb method with your data.
+				// 
+				// Please note that you may need to return more than 1 bar of data. If the chart has moved
+				// forward then the requested startDate will be the previous bar (to finalized the bar) and
+				// you should return that bar as well as the current (new) bar. To simplify, always return
+				// all of the bars starting with startDate and ending with the most recent bar.
+			}else if(params.endDate){
+				// If you only receive an endDate, it means the user has scrolled past the end of
+				// the chart. The chart needs older data, if it's available.
+				// If you don't support pagination just return and do nothing.
+				// 
+				// Note: If your server requires a startDate then you'll need to calculate one here. A simple method
+				// would be to take the endDate and then, using JavaScript Date math, create a date that is far enough
+				// in the past based on params.period, params.interval and params.ticks. @todo, provide a convenience method
+				// 
+				// Otherwise fetch your data, probably using Ajax, and call the call with cb method with your data.
+			}else{
+				// The chart needs an initial load.
+				// 
+				// params.tick provides an suggested number of bars to retrieve to fill up the chart
+				// and provide some bars off the left edge of the screen. It's good to provide more initial
+				// data than just the size of the chart because many users will immediately zoom out. If you
+				// have extra data off the left edge of the chart, then the zoom will be instantaneous. There
+				// is very little downside to sending extra data.
+				// 
+				// You do not need to retrieve exactly params.tick number of bars. This is a suggestion.
+				// You can return as many as you want. Fetching 1,000 bars is another good approach. This will
+				// cover the immediate zooming and panning needs of 95% of users.
+				//
+				// Note: If your server requires startDate and endDate then use Date.now() for the endDate
+				// and calculate a startDate using JavaScript Date math. params.period, params.interval and params.ticks
+				// provide all the variables necessary to do the math. @todo, provide a convenience method
+				// 
+				// Fetch your data, probably using Ajax, and call the cb method with yourdata. This
+				// is where you'll need to reformat your data into the format required by the chart.
+				// 
+				//  Put your code here to format the response according to the specs and return it in the callback.
+				//
+				//	Example code:
+				//	
+				// STX.postAjax(url, null, function(status, response){
+				//	if(status!=200){
+				//		cb({error:status});	// something went wrong, use the callback function to return your error
+				//		return;
+				//	}
+				//	
+				//	var quotes=formatQuotes(response);
+				//	var newQuotes=[];
+				//	for(var i=0;i<quotes.length;i++){
+				//		newQuotes[i]={};
+				//		newQuotes[i].Date=quotes[i][0]; // Or set newQuotes[i].DT if you have a JS Date
+				//		newQuotes[i].Open=quotes[i][1];
+				//		newQuotes[i].High=quotes[i][2];
+				//		newQuotes[i].Low=quotes[i][3];
+				//		newQuotes[i].Close=quotes[i][4];
+				//		newQuotes[i].Volume=quotes[i][5];
+				//		newQuotes[i].Adj_Close=quotes[i][6];
+				//	}
+				//  cb({quotes:newQuotes, moreAvailable:false}); // set moreAvailable to true or false if your server supports fetching older data, and you know that older data is available.
+				// });
+				// 
+			}
+		};
+
+		STX.QuoteFeed.CopyAndPasteMe.prototype.subscribe=function(params){
+			// This will get called each time the chart encounters a new symbol. This
+			// could happen from a user changing symbol, a user adding a comparison symbol,
+			// a new study that requires a new symbol.
+			// 
+			// You can use this along with unsubscribe() to keep track for the purpose
+			// of maintaining legends, lists of securities, or to open or close streaming
+			// connections.
+			// 
+			// If using a push streamer, subscribe to this security and then have the push
+			// streamer push updates using {@link STXChart#streamTrade} if you have
+			// a "last trade" stream or {@link STXChart@appendMasterData} if you have an "OHLC" stream.
+			// 
+			// Use params.interval, params.period, params.symbolObject to inform your streamer
+			// what it needs to send
+		};
+
+		STX.QuoteFeed.CopyAndPasteMe.prototype.unsubscribe=function(params){
+			// When a chart no longer needs to keep track of a symbol it will call
+			// unsubscribe(). You can use this to tell your streamer it no longer
+			// needs to send updates.
+		};
+
 
 		/**
 		 * Demo version of quotes which uses EOD data. See full demo code in stx.js.

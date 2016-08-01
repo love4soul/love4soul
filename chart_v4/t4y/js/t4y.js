@@ -45,6 +45,11 @@ var EGlobalTrade4you = function(){
         }
     };
 
+	var isAndroid = function() {
+	   var ua = navigator.userAgent;
+	   return ua.indexOf('Android') > -1;
+	}
+
     var drawingInjection = function(){
         if (stxx.chart.dataSet.length) {
             var activeOrdersLength = order.active.length;
@@ -121,12 +126,11 @@ var EGlobalTrade4you = function(){
                 if (self.context.loader) self.context.loader.hide();
             });
 
-            var data = {
-                'periodicity': periodicity,
-                'interval': interval
-            };
+            var mins = periodicity * interval;
 
-            sendIOSRequest('setPeriodicity', data);
+			if(isAndroid() == false){
+				window.location.href = "ios://period?p="+mins;
+			}
         };
 
         STX.UI.Prototypes.TFC.start = function() {

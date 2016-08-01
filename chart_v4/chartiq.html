@@ -880,22 +880,6 @@ var behavior = {
 stxx.attachQuoteFeed(new STX.QuoteFeed.MyFeed(), behavior); // Attach your QuoteFeed
 /****/
 
-/* Timeframe handlers */
-
-STX.UI.Layout.prototype.setPeriodicity = function(node, periodicity, interval) {
-	var self = this;
-	if (self.context.loader) self.context.loader.show();
-	self.context.stx.setPeriodicityV2(periodicity, interval, function() {
-		if (self.context.loader) self.context.loader.hide();
-	});
-		
-    var mins = periodicity * interval;
-	
-	if(isAndroid() == false){
-		window.location.href = "ios://period?p="+mins;
-	}
-};
-
 // Remove this if you do not support extended hours trading
 new STX.ExtendedHours(stxx,["post","pre"]);
 

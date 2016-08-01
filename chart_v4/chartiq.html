@@ -927,11 +927,10 @@ function saveDrawings(obj){
 	if(tmp.length===0){
 		STX.localStorage.removeItem(obj.symbol);
 	}else{
-		STX.localStorageSetItem(obj.symbol, JSON.stringify(tmp));
-		
+		STX.localStorageSetItem(obj.symbol, JSON.stringify(tmp));		
 	}
 	if(isAndroid() == false){
-		window.location.href = "ios://saveDrawings/?l="+JSON.stringify(tmp);
+		window.location.href = "ios://saveDrawings/?l="+obj.symbol;
 	}
 }
 

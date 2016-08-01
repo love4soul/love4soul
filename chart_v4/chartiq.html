@@ -899,14 +899,13 @@ function saveLayout(obj){
 	}
 }
 
-function restoreDrawingsFromApp(json){
-	if(json==null){
+function restoreDrawingsFromApp(data){
+	if(data==null){
         return;
     }
 
-	var parsed=JSON.parse(json);
-	if(parsed){
-		stxx.reconstructDrawings(parsed);
+	if(data){
+		stxx.reconstructDrawings(data);
 		stxx.draw();
 	}	
 }

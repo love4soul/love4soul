@@ -899,7 +899,7 @@ function saveLayout(obj){
 	}
 }
 
-function restoreDrawings(json){
+function restoreDrawingsFromApp(json){
 	if(json==null){
         return;
     }
@@ -909,6 +909,17 @@ function restoreDrawings(json){
 		stxx.reconstructDrawings(parsed);
 		stxx.draw();
 	}	
+}
+
+function restoreDrawings(stx, symbol){
+	var memory=STX.localStorage.getItem(symbol);
+	if(memory!==null){
+		var parsed=JSON.parse(memory);
+		if(parsed){
+			stx.reconstructDrawings(parsed);
+			stx.draw();
+		}
+	}
 }
 
 function saveDrawings(obj){

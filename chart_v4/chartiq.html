@@ -841,102 +841,8 @@ function finishedLoadingNewChart(currentSymbol, newSymbol){
   };
 }
 
-/**
- * Create your own QuoteFeed class derived from STX.QuoteFeed. See documentation or stx.js on how to do this.
- */
-//stxx.attachQuoteFeed(new STX.QuoteFeed.Demo(),{"refreshInterval":1});
-
-STX.QuoteFeed.MyFeed = function () {
-    
-};
-
-
-// Inherit from the base feed
-STX.QuoteFeed.MyFeed.stxInheritsFrom(STX.QuoteFeed);
-
-STX.QuoteFeed.MyFeed.prototype.fetch = function (params, cb) {
-    if (params.startDate) {       
-		cb({
-		            quotes: []
-		        });
-    } else {       
-        if (params.endDate) {
-			window.location.href = "ios://loadmore";
-			loadMoreCallback = cb;
-			
-        } else {
-			cb({
-			            quotes: [],
-						moreAvailable: true
-			        });
-        }
-    }
-};
-
-var behavior = {
-    refreshInterval: 60
-};
-
-stxx.attachQuoteFeed(new STX.QuoteFeed.MyFeed(), behavior); // Attach your QuoteFeed
-/****/
-
 // Remove this if you do not support extended hours trading
 new STX.ExtendedHours(stxx,["post","pre"]);
-
-//TODO, encapsulate these in a helper object
-function restoreLayout(json){
-    if(json==null){
-        return;
-    }
-    stxx.importLayout(JSON.parse(json));        
-}
-
-function saveLayout(obj){
-    var s=JSON.stringify(obj.stx.exportLayout(true));
-	STX.localStorageSetItem("myChartLayout", s);
-	if(isAndroid() == false){
-		window.location.href = "ios://savelayout/?l="+s;
-	}
-}
-
-function restoreDrawingsFromApp(data){
-	if(data==null){
-        return;
-    }
-
-	if(data){
-		stxx.reconstructDrawings(data);
-		stxx.draw();
-	}	
-}
-
-function restoreDrawings(stx, symbol){
-	var memory=STX.localStorage.getItem(symbol);
-	if(memory!==null){
-		var parsed=JSON.parse(memory);
-		if(parsed){
-			stx.reconstructDrawings(parsed);
-			stx.draw();
-		}
-	}
-}
-
-function saveDrawings(obj){
-	var tmp=obj.stx.serializeDrawings();
-	if(tmp.length===0){
-		STX.localStorage.removeItem(obj.symbol);
-	}else{
-		STX.localStorageSetItem(obj.symbol, JSON.stringify(tmp));		
-	}
-	if(isAndroid() == false){
-		window.location.href = "ios://saveDrawings/?l="+obj.symbol;
-	}
-}
-
-stxx.callbacks.layout=saveLayout;
-stxx.callbacks.symbolChange=saveLayout;
-stxx.callbacks.drawing=saveDrawings;
-
 
 function startUI(){
 	UIContext=new STX.UI.Context(stxx, $("*[cq-context]"));
@@ -1143,13 +1049,6 @@ window.addEventListener('WebComponentsReady', function(e) {
 $(window).resize(resizeScreen);
 
 var t4y = new EGlobalTrade4you();
-
-//
-//t4y.addOrder(1, 1.1100, t4y.orderType.buy, 100);
-//t4y.addOrder(2, 1.1103, t4y.orderType.pendingBuy, 200);
-//t4y.addOrder(3, 1.1105, t4y.orderType.sell, 300);
-//t4y.addOrder(4, 1.1109, t4y.orderType.pendingSell, 400);
-//t4y.removeOrder(2);
 
 </script>
 </body>

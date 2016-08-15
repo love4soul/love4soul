@@ -1,4 +1,8 @@
-var EGlobalTrade4you = function(){
+/**
+ * @returns {{orderType: {buy: string, sell: string, pendingBuy: string, pendingSell: string}, addOrder: addOrder, removeOrder: removeOrder, restoreLayout: restoreLayout, saveLayout: saveLayout, restoreDrawingsFromApp: restoreDrawingsFromApp, restoreDrawings: restoreDrawings, saveDrawings: saveDrawings}}
+ * @constructor
+ */
+var EGlobalTrade4you = function() {
     // Set FALSE for mobile devices
     var browserDebug = false;
 
@@ -34,9 +38,19 @@ var EGlobalTrade4you = function(){
         active: []
     };
 
-    var sendIOSRequest = function(action, data) {
-        // Modify "data" object for your needs, most probably you will need url encoded content
-        var url = 'ios://' + action + '?data=' + JSON.stringify(data);
+    var sendIOSRequest = function(action, data, dataId, serialize) {
+        if (isAndroid()) {
+            return;
+        }
+
+        var request = '';
+
+        if (data != null) {
+            data = (serialize ? JSON.stringify(data) : data);
+            request = '?' + dataId + '=' + data;
+        }
+
+        var url = 'ios://' + action + request;
 
         if (browserDebug) {
             console.log(url);
@@ -45,12 +59,12 @@ var EGlobalTrade4you = function(){
         }
     };
 
-	var isAndroid = function() {
-	   var ua = navigator.userAgent;
-	   return ua.indexOf('Android') > -1;
-	}
+    var isAndroid = function() {
+        var ua = navigator.userAgent;
+        return ua.indexOf('Android') > -1;
+    };
 
-    var drawingInjection = function(){
+    var drawingInjection = function() {
         if (stxx.chart.dataSet.length) {
             var activeOrdersLength = order.active.length;
             var x, y, txt, context, lineLabel;
@@ -86,7 +100,7 @@ var EGlobalTrade4you = function(){
                 context = stxx.chart.context;
                 context.font = order.params.lineLabel.font;
                 context.fillStyle = orderColor;
-                context.fillText(lineLabel, panel.width - 12 - context.measureText(lineLabel).width, y-4);
+                context.fillText(lineLabel, panel.width - 12 - context.measureText(lineLabel).width, y - 4);
             }
         }
     };
@@ -126,11 +140,9 @@ var EGlobalTrade4you = function(){
                 if (self.context.loader) self.context.loader.hide();
             });
 
-            var mins = periodicity * interval;
-
-			if(isAndroid() == false){
-				window.location.href = "ios://period?p="+mins;
-			}
+            if (!isAndroid()) {
+                sendIOSRequest('period', 'p', periodicity * interval, false);
+            }
         };
 
         STX.UI.Prototypes.TFC.start = function() {
@@ -157,7 +169,7 @@ var EGlobalTrade4you = function(){
             };
 
             STX.TFC.prototype.confirmOrder = function(order) {
-                sendIOSRequest('makeOrder', order);
+                sendIOSRequest('makeOrder', 'data', order, true);
             };
         };
 
@@ -185,10 +197,41 @@ var EGlobalTrade4you = function(){
             if (this.iscroll) this.iscroll.refresh();
         };
 
+        STX.QuoteFeed.MyFeed = function() {
+        };
+
+        STX.QuoteFeed.MyFeed.stxInheritsFrom(STX.QuoteFeed);
+
+        STX.QuoteFeed.MyFeed.prototype.fetch = function(params, cb) {
+            if (params.startDate) {
+                cb({
+                    quotes: []
+                });
+            } else {
+                if (params.endDate) {
+                    sendIOSRequest('loadmore', null);
+                    loadMoreCallback = cb;
+                } else {
+                    cb({
+                        quotes: [],
+                        moreAvailable: true
+                    });
+                }
+            }
+        };
+
+        stxx.attachQuoteFeed(new STX.QuoteFeed.MyFeed(), {
+            refreshInterval: 60
+        });
+
         STXChart.prototype.prepend("touchstart", function(event) {
             $('.ciq-dropdowns .stxMenuActive').removeClass('stxMenuActive');
             return false;
         });
+
+        stxx.callbacks.layout = saveLayout;
+        stxx.callbacks.symbolChange = saveLayout;
+        stxx.callbacks.drawing = saveDrawings;
     };
 
     var displayOrientationFix = function() {
@@ -253,6 +296,57 @@ var EGlobalTrade4you = function(){
         stxx.draw();
     };
 
+    var restoreLayout = function(json) {
+        if (json == null) {
+            return;
+        }
+
+        stxx.importLayout(JSON.parse(json));
+    };
+
+    var saveLayout = function(obj) {
+        var layout = JSON.stringify(obj.stx.exportLayout(true));
+
+        STX.localStorageSetItem("myChartLayout", layout);
+
+        sendIOSRequest('savelayout', layout, 'l', false);
+    };
+
+    var restoreDrawingsFromApp = function(data) {
+        if (data == null) {
+            return;
+        }
+
+        if (data) {
+            stxx.reconstructDrawings(data);
+            stxx.draw();
+        }
+    };
+
+    var restoreDrawings = function(stx, symbol) {
+        var memory = STX.localStorage.getItem(symbol);
+
+        if (memory !== null) {
+            var parsed = JSON.parse(memory);
+            if (parsed) {
+                stx.reconstructDrawings(parsed);
+                stx.draw();
+            }
+        }
+    };
+
+    var saveDrawings = function(obj) {
+        var drawings = obj.stx.serializeDrawings();
+
+        if (drawings.length === 0) {
+            STX.localStorage.removeItem(obj.symbol);
+        } else {
+            STX.localStorageSetItem(obj.symbol, JSON.stringify(drawings));
+        }
+
+        sendIOSRequest('saveDrawings', obj.symbol, 'l', false);
+    };
+
     var init = function() {
         overwriteDefaultFunctions();
         displayOrientationFix();
@@ -262,8 +356,13 @@ var EGlobalTrade4you = function(){
     init();
 
     return {
-        orderType: orderType,
-        addOrder: addOrder,
-        removeOrder: removeOrder
+        'orderType': orderType,
+        'addOrder': addOrder,
+        'removeOrder': removeOrder,
+        'restoreLayout': restoreLayout,
+        'saveLayout': saveLayout,
+        'restoreDrawingsFromApp': restoreDrawingsFromApp,
+        'restoreDrawings': restoreDrawings,
+        'saveDrawings': saveDrawings
     };
 };
